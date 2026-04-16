@@ -1,0 +1,17 @@
+graph LR
+  UI[User Interface]
+  API[API Layer]
+  App[Application Services]
+  Domain[Domain Model]
+  DB[PostgreSQL]
+  Outbox[Outbox Table]
+  CardAdapter[Card Account Adapter]
+  BenefitsAdapter[Benefits Adapter]
+
+  UI --> API
+  API --> App
+  App --> Domain
+  Domain --> DB
+  App --> Outbox
+  App --> CardAdapter
+  App --> BenefitsAdapter

@@ -1,0 +1,6 @@
+export enum BenefitActivationStatus {
+  PENDING = 'PENDING',
+  ACTIVATED = 'ACTIVATED',
+  FAILED = 'FAILED',
+  SKIPPED = 'SKIPPED',
+}

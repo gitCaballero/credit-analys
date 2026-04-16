@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: credit-originacion-db
+    environment:
+      POSTGRES_DB: credit_originacion
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: credit-originacion-app
+    environment:
+      DB_HOST: db
+      DB_PORT: '5432'
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: credit_originacion
+      NODE_ENV: production
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+    command: sh -c "until pg_isready -h db -p 5432 -U postgres; do echo 'Waiting for Postgres'; sleep 2; done; npm run start:prod"
+    restart: unless-stopped
+
+volumes:
+  db_data:
