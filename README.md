@@ -129,6 +129,56 @@ curl -X POST http://localhost:3000/assistant/message \
   }'
 ```
 
+## Assistente CLI
+
+O projeto inclui um assistente interativo em terminal que pode ser executado localmente ou em Docker.
+
+### Como executar o assistente CLI localmente
+
+1. Inicie a aplicação com:
+   ```bash
+   npm run assistant:cli
+   ```
+2. O CLI abre um prompt com instruções em português.
+3. Você pode digitar:
+   - um número para selecionar a opção desejada
+   - uma mensagem em linguagem natural para o assistente interpretar
+   - `opcoes`, `menu` ou `ajuda` para mostrar as opções novamente
+   - `sair`, `exit` ou `quit` para encerrar
+4. O assistente interativo faz perguntas para preencher os campos necessários.
+5. Quando solicitar `proposalId`, ele também pode mostrar o último ID de proposta criado.
+
+### Como executar o assistente CLI em Docker
+
+1. Com o stack Docker já em execução, execute:
+   ```bash
+   docker compose run --rm cli
+   ```
+2. Para usar a versão compilada do CLI a partir do contêiner `app`:
+   ```bash
+   docker compose run --rm app npm run assistant:cli:dist
+   ```
+
+### Opções do assistente CLI
+
+O assistente de terminal apresenta opções em português, como:
+
+- solicitar um novo crédito com perfil, oferta e benefícios
+- consultar status da proposta
+- validar elegibilidade de oferta
+- validar benefícios selecionados
+- enviar proposta
+- criar conta de cartão
+- ativar benefícios
+- explicar o status e decisões da proposta
+
+### Benefícios válidos no CLI
+
+- `cashback`
+- `points`
+- `travel` / `viagem`
+- `vip` / `lounge`
+
 ## Notas rápidas
 
 - No Docker, os serviços `app` e `cli` se conectam internamente ao `db` na porta `5432`.
@@ -264,21 +314,13 @@ Resposta esperada:
 }
 ```
 
-
-```json
-{
-  "proposalId": "proposal-1",
-  "status": "SUBMITTED"
-}
-```
-
-### 6. Crear cuenta de tarjeta
+### 6. Criar conta de cartão
 
 ```bash
 curl -X POST http://localhost:3000/proposals/proposal-1/card-creation
 ```
 
-Respuesta esperada:
+Resposta esperada:
 
 ```json
 {
@@ -288,13 +330,13 @@ Respuesta esperada:
 }
 ```
 
-### 7. Activar beneficios
+### 7. Ativar benefícios
 
 ```bash
 curl -X POST http://localhost:3000/proposals/proposal-1/benefits-activation
 ```
 
-Respuesta esperada:
+Resposta esperada:
 
 ```json
 {
@@ -305,36 +347,37 @@ Respuesta esperada:
 }
 ```
 
-## Flujo de ejemplo completo
+## Fluxo de exemplo completo
 
-1. Crear propuesta con `POST /proposals`
-2. Validar oferta con `POST /proposals/:proposalId/offer-validation`
-3. Validar beneficios con `POST /proposals/:proposalId/benefits-validation`
-4. Enviar propuesta con `POST /proposals/:proposalId/submit`
-5. Crear cuenta de tarjeta con `POST /proposals/:proposalId/card-creation`
-6. Activar beneficios con `POST /proposals/:proposalId/benefits-activation`
-7. Consultar estado con `GET /proposals/:proposalId/status`
+1. Criar proposta com `POST /proposals`
+2. Validar a oferta com `POST /proposals/:proposalId/offer-validation`
+3. Validar benefícios com `POST /proposals/:proposalId/benefits-validation`
+4. Enviar proposta com `POST /proposals/:proposalId/submit`
+5. Criar conta de cartão com `POST /proposals/:proposalId/card-creation`
+6. Ativar benefícios com `POST /proposals/:proposalId/benefits-activation`
+7. Consultar o estado com `GET /proposals/:proposalId/status`
 
-## Variables de entorno
+## Variáveis de ambiente
 
-Se pueden usar estas variables:
+É possível usar estas variáveis:
 
-- `DB_HOST` (por defecto `db` en Docker)
-- `DB_PORT` (por defecto `5432`)
-- `DB_USER` (por defecto `postgres`)
-- `DB_PASSWORD` (por defecto `postgres`)
-- `DB_NAME` (por defecto `credit_originacion`)
-- `PORT` (por defecto `3000`)
+- `DB_HOST` (por padrão `db` no Docker)
+- `DB_PORT` (por padrão `5432`)
+- `DB_USER` (por padrão `postgres`)
+- `DB_PASSWORD` (por padrão `postgres`)
+- `DB_NAME` (por padrão `credit_originacion`)
+- `PORT` (por padrão `3000`)
+- `OPENAI_API_KEY` (opcional para o adaptador OpenAI)
 
-Usar el archivo de ejemplo `.env.example` como referencia.
+Use o arquivo de exemplo `.env.example` como referência.
 
 ## Documentação adicional
 
 O repositório inclui documentos técnicos organizados em `docs/`:
 
-- `docs/prompt-outputs.md` - consolida saídas restantes dos prompts e orientações de arquitetura.
+- `docs/prompt-outputs.md` - consolida outputs de prompts e orientações de arquitetura.
 - `docs/state-machine.md` - estados e transições do ciclo de vida da proposta.
-- `docs/flows.mmd` - fluxo ponta a ponta da originação do cartão, incluindo assistente com IA e fallback local.
-- `docs/context-memory-strategy.md` - estratégia de memória e economia de tokens para trabalho no projeto.
-- `docs/next-steps-recommendations.md` - próximos passos recomendados para fortalecer arquitetura, segurança, assistente e operação.
+- `docs/flows.mmd` - fluxo ponta a ponta da originação do cartão, incluindo assistente IA e fallback local.
+- `docs/context-memory-strategy.md` - estratégia de memória e economia de tokens.
+- `docs/next-steps-recommendations.md` - recomendações para fortalecer arquitetura, segurança e operação.
 - `docs/prompt-guidance.md` - resumo das instruções e prompts mais relevantes do projeto.
