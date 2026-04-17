@@ -1,15 +1,15 @@
-Genera el diseño event-driven para esta solución.
+Gere o design event-driven para esta solução.
 
-Necesito:
-- lista de eventos de dominio y de integración
+Preciso de:
+- lista de eventos de domínio e de integração
 - payload sugerido para cada evento
-- naming convention
-- versión de eventos
-- recomendaciones de idempotencia
-- estrategia de retry y dead-letter queue
-- correlación de eventos por proposalId y correlationId
+- convenção de nomenclatura
+- versão de eventos
+- recomendações de idempotência
+- estratégia de retry e dead-letter queue
+- correlação de eventos por proposalId e correlationId
 
-Eventos sugeridos como punto de partida:
+Eventos sugeridos como ponto de partida:
 - proposal.received
 - proposal.validated
 - offer.eligibility.calculated
@@ -25,7 +25,7 @@ Eventos sugeridos como punto de partida:
 - proposal.rejected
 - customer.notified
 
-Quiero además:
-- ejemplo de publisher y consumer en NestJS
-- patrón outbox sugerido
-- cómo evitar doble creación de cuenta tarjeta o doble activación de beneficios
+Quero também:
+- exemplo de publisher e consumer em NestJS
+- padrão outbox sugerido
+- como evitar dupla criação da conta de cartão ou dupla ativação de benefícios

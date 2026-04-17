@@ -1,21 +1,21 @@
 import { OfferType } from '../enums/offer-type.enum';
 
 /**
- * CustomerProfile holds the financial and contact details for a single customer.
+ * CustomerProfile representa os dados financeiros e de contato de um cliente.
  */
 export class CustomerProfile {
   constructor(
-    /** Customer full legal name. */
+    /** Nome completo do cliente. */
     readonly fullName: string,
-    /** Customer national identity document number. */
+    /** Número do documento de identificação nacional do cliente. */
     readonly nationalId: string,
-    /** Declared monthly or annual income. */
+    /** Renda mensal ou anual declarada. */
     readonly income: number,
-    /** Total investments held by the customer. */
+    /** Total de investimentos mantidos pelo cliente. */
     readonly investments: number,
-    /** Total years the customer has held a current account. */
+    /** Total de anos em que o cliente mantém conta corrente. */
     readonly currentAccountYears: number,
-    /** Customer email address. */
+    /** Endereço de e-mail do cliente. */
     readonly email: string,
   ) {
     if (!fullName.trim()) {
@@ -39,9 +39,9 @@ export class CustomerProfile {
   }
 
   /**
-   * Determines whether the customer qualifies for a specific card offer.
-   * @param offer The target offer type to validate.
-   * @returns true when the customer meets the financial rules for the offer.
+   * Determina se o cliente é elegível para uma oferta específica de cartão.
+   * @param offer Tipo de oferta que será validado.
+   * @returns true quando o cliente atende às regras financeiras da oferta.
    */
   isEligibleForOffer(offer: OfferType): boolean {
     switch (offer) {

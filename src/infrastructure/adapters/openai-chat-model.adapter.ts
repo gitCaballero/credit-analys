@@ -11,25 +11,25 @@ export class OpenAiChatModelAdapter implements ChatAssistantModelAdapter {
   async interpretIntent(request: ChatAssistantModelRequest): Promise<ChatAssistantModelResponse> {
     const toolDescriptions = request.availableTools
       .map(
-        (tool) => `- ${tool.name}: ${tool.description} Parámetros requeridos: ${tool.requiredParameters.join(', ')}`,
+        (tool) => `- ${tool.name}: ${tool.description} Parâmetros requeridos: ${tool.requiredParameters.join(', ')}`,
       )
       .join('\n');
 
-    const prompt = `Eres un asistente de crédito que decide qué herramienta interna usar para resolver la solicitud del usuario. Responde únicamente con un JSON válido con las siguientes claves: toolName, toolInput y assistantMessage. No agregues texto extra fuera del JSON.
+    const prompt = `Você é um assistente de crédito que decide qual ferramenta interna usar para resolver a solicitação do usuário. Responda apenas com um JSON válido com as seguintes chaves: toolName, toolInput e assistantMessage. Não adicione texto extra fora do JSON.
 
-Herramientas disponibles:
+Ferramentas disponíveis:
 ${toolDescriptions}
 
-Solicitud del usuario:
+Solicitação do usuário:
 ${request.userMessage}
 
 Contexto adicional:
-${request.proposalId ? `proposalId=${request.proposalId}` : 'sin proposalId'}
+${request.proposalId ? `proposalId=${request.proposalId}` : 'sem proposalId'}
 ${request.parameters ? `
-Parámetros adicionales: ${JSON.stringify(request.parameters)}` : ''}
+Parâmetros adicionais: ${JSON.stringify(request.parameters)}` : ''}
 
-Ejemplo de respuesta válida:
-{"toolName":"check_status","toolInput":{"proposalId":"ABC123"},"assistantMessage":"Consulto el estado de tu propuesta."}`;
+Exemplo de resposta válida:
+{"toolName":"check_status","toolInput":{"proposalId":"ABC123"},"assistantMessage":"Consulto o status da sua proposta."}`;
 
     const response = await this.client.responses.create({
       model: 'gpt-4.1',
@@ -43,7 +43,7 @@ Ejemplo de respuesta válida:
       return {
         toolName: 'none',
         toolInput: {},
-        assistantMessage: 'No pude interpretar tu solicitud en este momento. Intenta reformularla.',
+        assistantMessage: 'Não consegui interpretar sua solicitação no momento. Tente reformular.',
       };
     }
 
@@ -52,13 +52,13 @@ Ejemplo de respuesta válida:
       return {
         toolName: String(parsed.toolName || 'none'),
         toolInput: parsed.toolInput || {},
-        assistantMessage: String(parsed.assistantMessage || 'He procesado tu solicitud.'),
+        assistantMessage: String(parsed.assistantMessage || 'Processo sua solicitação.'),
       };
     } catch {
       return {
         toolName: 'none',
         toolInput: {},
-        assistantMessage: 'No pude interpretar la respuesta del modelo. Intenta con una consulta más sencilla.',
+        assistantMessage: 'Não consegui interpretar a resposta do modelo. Tente com uma consulta mais simples.',
       };
     }
   }

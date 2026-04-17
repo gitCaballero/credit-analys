@@ -1,16 +1,16 @@
-Diseña la persistencia de datos para esta solución usando PostgreSQL.
+Desenhe a persistência de dados para esta solução usando PostgreSQL.
 
-Necesito:
+Preciso de:
 - modelo relacional inicial
-- tablas principales
-- claves primarias y foráneas
+- tabelas principais
+- chaves primárias e estrangeiras
 - índices
-- campos de auditoría
-- estrategia para histórico de estados
-- estrategia para event outbox
-- estrategia para datos sensibles
+- campos de auditoria
+- estratégia para histórico de estados
+- estratégia para event outbox
+- estratégia para dados sensíveis
 
-Tablas esperadas como mínimo:
+Tabelas esperadas como mínimo:
 - proposals
 - proposal_status_history
 - selected_benefits
@@ -18,15 +18,15 @@ Tablas esperadas como mínimo:
 - audit_entries
 - outbox_events
 
-Quiero que definas:
-- columnas
+Quero que defina:
+- colunas
 - tipos sugeridos
-- restricciones
-- qué datos deben cifrarse o mascararse
-- cómo modelar versiones de reglas aplicadas
-- cómo modelar errores técnicos vs errores de negocio
+- restrições
+- quais dados devem ser criptografados ou mascarados
+- como modelar versões de regras aplicadas
+- como modelar erros técnicos vs erros de negócio
 
 Entrega:
-- SQL inicial o entities para ORM
-- explicación de diseño
-- decisiones de normalización
+- SQL inicial ou entidades para ORM
+- explicação de design
+- decisões de normalização

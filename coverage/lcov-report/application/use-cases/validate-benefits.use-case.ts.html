@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">6.66% </span>
+                <span class="strong">93.33% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>1/15</span>
+                <span class='fraction'>14/15</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">66.66% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>2/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">6.66% </span>
+                <span class="strong">93.33% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>1/15</span>
+                <span class='fraction'>14/15</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -120,34 +120,34 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -159,7 +159,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -173,33 +173,33 @@ import { OutboxEventPublisher } from '../services/outbox-event.publisher';
 import { ProposalRepository } from '../ports/proposal.repository';
 &nbsp;
 export class ValidateBenefitSelectionUseCase {
-<span class="fstat-no" title="function not covered" >  constructor(</span>
-    private readonly <span class="cstat-no" title="statement not covered" >repository: ProposalRepository,</span>
-    private readonly <span class="cstat-no" title="statement not covered" >policy: BenefitEligibilityPolicy,</span>
-    private readonly <span class="cstat-no" title="statement not covered" >outboxPublisher: OutboxEventPublisher,</span>
+  constructor(
+    private readonly repository: ProposalRepository,
+    private readonly policy: BenefitEligibilityPolicy,
+    private readonly outboxPublisher: OutboxEventPublisher,
   ) {}
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>execute(proposalId: string, selectedBenefits: BenefitType[]): Promise&lt;{
+  async execute(proposalId: string, selectedBenefits: BenefitType[]): Promise&lt;{
     approved: boolean;
     reasons: string[];
     rejectedRules: string[];
     eligibleBenefits: string[];
   }&gt; {
-    const proposal = <span class="cstat-no" title="statement not covered" >await this.repository.findById(proposalId);</span>
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!proposal) {</span>
+    const proposal = await this.repository.findById(proposalId);
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (!proposal) {
 <span class="cstat-no" title="statement not covered" >      throw new Error(`Proposal ${proposalId} not found`);</span>
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    proposal.updateSelectedBenefits(selectedBenefits);</span>
-    const result = <span class="cstat-no" title="statement not covered" >this.policy.evaluate(proposal.offerType, proposal.selectedBenefits.benefits);</span>
-<span class="cstat-no" title="statement not covered" >    if (result.approved) {</span>
-<span class="cstat-no" title="statement not covered" >      proposal.markBenefitsValidated();</span>
+    proposal.updateSelectedBenefits(selectedBenefits);
+    const result = this.policy.evaluate(proposal.offerType, proposal.selectedBenefits.benefits);
+    if (result.approved) {
+      proposal.markBenefitsValidated();
     } else {
-<span class="cstat-no" title="statement not covered" >      proposal.markRejected(result.reasons.join('; '));</span>
+      proposal.markRejected(result.reasons.join('; '));
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    await this.repository.save(proposal);</span>
-<span class="cstat-no" title="statement not covered" >    await this.outboxPublisher.publish({</span>
+    await this.repository.save(proposal);
+    await this.outboxPublisher.publish({
       eventType: 'benefits.selection.validated',
       aggregateId: proposal.proposalId,
       payload: {
@@ -211,7 +211,7 @@ export class ValidateBenefitSelectionUseCase {
       occurredAt: new Date().toISOString(),
     });
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return {</span>
+    return {
       approved: result.approved,
       reasons: result.reasons,
       rejectedRules: result.rejectedRules,
@@ -226,7 +226,7 @@ export class ValidateBenefitSelectionUseCase {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-16T01:41:34.537Z
+                at 2026-04-16T02:58:44.778Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

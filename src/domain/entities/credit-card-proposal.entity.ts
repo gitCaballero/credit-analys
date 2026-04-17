@@ -8,25 +8,25 @@ import { BenefitSelection } from './benefit-selection.entity';
 import { CustomerProfile } from './customer-profile.entity';
 
 /**
- * CreditCardProposal is the aggregate root for a credit card application.
- * It tracks offer selection, benefit selection, status, card creation, and audit history.
+ * CreditCardProposal é a raiz de agregado de uma proposta de cartão de crédito.
+ * Ela controla a oferta escolhida, os benefícios selecionados, o status, a criação do cartão e o histórico de auditoria.
  */
 export class CreditCardProposal {
-  /** Selected benefit options for this proposal. */
+  /** Benefícios selecionados para esta proposta. */
   selectedBenefits: BenefitSelection;
-  /** Activation status for each benefit type. */
+  /** Status de ativação para cada tipo de benefício. */
   readonly benefitActivationStatus: Record<BenefitType, BenefitActivationStatus>;
-  /** Audit trail for domain events affecting this proposal. */
+  /** Trilha de auditoria dos eventos de domínio que afetam esta proposta. */
   readonly auditEntries: AuditEntry[];
 
   constructor(
-    /** Unique proposal identifier. */
+    /** Identificador único da proposta. */
     readonly proposalId: string,
-    /** Customer financial and contact information. */
+    /** Informações financeiras e de contato do cliente. */
     readonly customerProfile: CustomerProfile,
-    /** Offer type selected by the customer. */
+    /** Tipo de oferta selecionado pelo cliente. */
     readonly offerType: OfferType,
-    /** Initially selected benefits. */
+    /** Benefícios selecionados inicialmente. */
     benefits: BenefitType[] = [],
   ) {
     this.selectedBenefits = new BenefitSelection(benefits);
@@ -36,24 +36,24 @@ export class CreditCardProposal {
     this.cardCreationStatus = CardCreationStatus.NOT_CREATED;
   }
 
-  /** Current lifecycle status of the proposal. */
+  /** Status atual do ciclo de vida da proposta. */
   status: ProposalStatus;
-  /** Current card account creation status. */
+  /** Status atual da criação da conta do cartão. */
   cardCreationStatus: CardCreationStatus;
-  /** Reason for rejection when the proposal or card creation fails. */
+  /** Motivo da rejeição quando a proposta ou a criação do cartão falha. */
   rejectionReason?: string;
-  /** Assigned card identifier when a card account is created. */
+  /** Identificador do cartão atribuído quando a conta é criada. */
   cardId?: string;
 
   /**
-   * Records a new audit entry for this proposal.
+   * Registra uma nova entrada de auditoria para esta proposta.
    */
   addAudit(event: string, detail: string, actor?: string): void {
     this.auditEntries.push(new AuditEntry(event, new Date(), detail, actor));
   }
 
   /**
-   * Mark the proposal as having a validated offer.
+   * Marca a proposta como tendo a oferta validada.
    */
   markOfferValidated(): void {
     this.status = ProposalStatus.OFFER_VALIDATED;
@@ -61,7 +61,7 @@ export class CreditCardProposal {
   }
 
   /**
-   * Mark the proposal as having validated benefit selection.
+   * Marca a proposta como tendo a seleção de benefícios validada.
    */
   markBenefitsValidated(): void {
     this.status = ProposalStatus.BENEFITS_VALIDATED;
@@ -69,7 +69,7 @@ export class CreditCardProposal {
   }
 
   /**
-   * Mark the proposal as submitted for processing.
+   * Marca a proposta como enviada para processamento.
    */
   markSubmitted(): void {
     this.status = ProposalStatus.SUBMITTED;
@@ -77,7 +77,7 @@ export class CreditCardProposal {
   }
 
   /**
-   * Mark the card creation request as sent.
+   * Marca a solicitação de criação do cartão como enviada.
    */
   markCardCreationRequested(): void {
     this.cardCreationStatus = CardCreationStatus.REQUESTED;
@@ -85,16 +85,17 @@ export class CreditCardProposal {
   }
 
   /**
-   * Mark the card as created and save the generated card identifier.
+   * Marca o cartão como criado e salva o identificador gerado.
    */
   markCardCreated(cardId: string): void {
+    this.status = ProposalStatus.CARD_ACCOUNT_CREATED;
     this.cardCreationStatus = CardCreationStatus.CREATED;
     this.cardId = cardId;
     this.addAudit('card.created', `Card created with id ${cardId}`);
   }
 
   /**
-   * Mark the card creation process as failed with a rejection reason.
+   * Marca a criação do cartão como falha e registra o motivo.
    */
   markCardCreationFailed(reason: string): void {
     this.cardCreationStatus = CardCreationStatus.FAILED;
@@ -103,7 +104,7 @@ export class CreditCardProposal {
   }
 
   /**
-   * Mark the proposal as fully completed.
+   * Marca a proposta como totalmente concluída.
    */
   markCompleted(): void {
     this.status = ProposalStatus.COMPLETED;
@@ -111,7 +112,7 @@ export class CreditCardProposal {
   }
 
   /**
-   * Mark the proposal as rejected with a specific reason.
+   * Marca a proposta como rejeitada com um motivo específico.
    */
   markRejected(reason: string): void {
     this.status = ProposalStatus.REJECTED;
@@ -120,7 +121,7 @@ export class CreditCardProposal {
   }
 
   /**
-   * Update the activation status for a single benefit.
+   * Atualiza o status de ativação de um benefício específico.
    */
   setBenefitActivationStatus(benefit: BenefitType, activationStatus: BenefitActivationStatus): void {
     this.benefitActivationStatus[benefit] = activationStatus;
@@ -128,7 +129,7 @@ export class CreditCardProposal {
   }
 
   /**
-   * Update the selected benefit list and record the change in audit logs.
+   * Atualiza a lista de benefícios selecionados e registra a mudança na auditoria.
    */
   updateSelectedBenefits(benefits: BenefitType[]): void {
     this.selectedBenefits = new BenefitSelection(benefits);

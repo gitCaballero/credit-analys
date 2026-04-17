@@ -5,7 +5,7 @@ import { EligibilityResult } from './eligibility-result';
 export class OfferEligibilityPolicy {
   static readonly POLICY_VERSION = '1.0.0';
 
-  evaluate(customer: CustomerProfile): EligibilityResult {
+  evaluate(customer: CustomerProfile, selectedOffer?: OfferType): EligibilityResult {
     const eligibleOffers: OfferType[] = [];
     const rejectedRules: string[] = [];
     const reasons: string[] = [];
@@ -19,14 +19,22 @@ export class OfferEligibilityPolicy {
       }
     });
 
-    if (eligibleOffers.length > 0) {
+    const approved = selectedOffer ? eligibleOffers.includes(selectedOffer) : eligibleOffers.length > 0;
+
+    if (selectedOffer) {
+      if (approved) {
+        reasons.push(`Customer is eligible for selected offer ${selectedOffer}`);
+      } else {
+        reasons.push(`Customer is not eligible for selected offer ${selectedOffer}`);
+      }
+    } else if (eligibleOffers.length > 0) {
       reasons.push(`Customer is eligible for ${eligibleOffers.join(', ')}`);
     } else {
       reasons.push('Customer does not meet any offer eligibility requirements');
     }
 
     return new EligibilityResult(
-      eligibleOffers.length > 0,
+      approved,
       reasons,
       rejectedRules,
       OfferEligibilityPolicy.POLICY_VERSION,

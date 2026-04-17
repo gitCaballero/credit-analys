@@ -1,28 +1,28 @@
-Genera un módulo de Eligibility en TypeScript desacoplado del framework, con foco en reglas determinísticas y auditables.
+Gere um módulo de Eligibility em TypeScript desacoplado do framework, com foco em regras determinísticas e auditáveis.
 
 Objetivo:
-- Evaluar si una oferta es elegible
-- Evaluar si los beneficios seleccionados son elegibles
-- Devolver resultado estructurado con motivos, códigos y evidencias de decisión
+- Avaliar se uma oferta é elegível
+- Avaliar se os benefícios selecionados são elegíveis
+- Devolver resultado estruturado com motivos, códigos e evidências de decisão
 
-Necesito:
-1. Un servicio de dominio OfferEligibilityPolicy
-2. Un servicio de dominio BenefitEligibilityPolicy
-3. Un objeto de respuesta como EligibilityResult con:
+Preciso de:
+1. Um serviço de domínio OfferEligibilityPolicy
+2. Um serviço de domínio BenefitEligibilityPolicy
+3. Um objeto de resposta como EligibilityResult com:
    - approved: boolean
    - reasons: string[]
    - rejectedRules: string[]
    - eligibleOffers?: OfferType[]
    - eligibleBenefits?: BenefitType[]
    - policyVersion: string
-4. Reglas versionadas
-5. Pruebas unitarias completas
+4. Regras versionadas
+5. Testes unitários completos
 
-Consideraciones:
-- No hardcodear reglas dispersas en múltiples archivos
-- Las reglas deben ser fáciles de cambiar
-- El resultado debe ser totalmente trazable y explicable
-- No usar IA ni librerías de rules engine externas en esta primera versión
-- Diseña para poder migrar después a un motor externo si fuera necesario
+Considerações:
+- Não hardcodear regras dispersas em múltiplos arquivos
+- As regras devem ser fáceis de mudar
+- O resultado deve ser totalmente rastreável e explicável
+- Não usar IA nem bibliotecas de rule engine externas nesta primeira versão
+- Desenhe para poder migrar depois para um motor externo se necessário
 
-Además, propón una estrategia para externalizar estas reglas a JSON o configuración en una segunda fase.
+Além disso, proponha uma estratégia para externalizar essas regras para JSON ou configuração em uma segunda fase.

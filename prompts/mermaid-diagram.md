@@ -1,20 +1,20 @@
-Genera diagramas Mermaid para esta solución.
+Gere diagramas Mermaid para esta solução.
 
-Necesito:
-1. Diagrama de arquitectura por módulos
-2. Diagrama de secuencia del flujo principal
-3. Diagrama de estados de la propuesta
-4. Diagrama del flujo de elegibilidad de oferta y beneficios
+Preciso de:
+1. Diagrama de arquitetura por módulos
+2. Diagrama de sequência do fluxo principal
+3. Diagrama de estados da proposta
+4. Diagrama do fluxo de elegibilidade de oferta e benefícios
 
-El flujo debe reflejar:
-- recepción de propuesta
-- validación de oferta
-- presentación/validación de beneficios
-- envío de propuesta
-- creación de cuenta tarjeta
-- activación de beneficios
-- actualización de estado
-- notificación al cliente
-- registro de auditoría y eventos
+O fluxo deve refletir:
+- recepção de proposta
+- validação de oferta
+- apresentação/validação de benefícios
+- envio de proposta
+- criação da conta do cartão
+- ativação de benefícios
+- atualização de estado
+- notificação ao cliente
+- registro de auditoria e eventos
 
-Entrega los diagramas en bloques Mermaid listos para pegar en Markdown.
+Entregue os diagramas em blocos Mermaid prontos para colar em Markdown.

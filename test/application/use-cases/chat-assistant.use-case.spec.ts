@@ -16,6 +16,7 @@ import { OutboxEventPublisher } from '../../../src/application/services/outbox-e
 import { BenefitEligibilityPolicy } from '../../../src/domain/policies/benefit-eligibility.policy';
 import { OfferEligibilityPolicy } from '../../../src/domain/policies/offer-eligibility.policy';
 import { BenefitType } from '../../../src/domain/enums/benefit-type.enum';
+import { ChatAssistantModelAdapter } from '../../../src/application/ports/chat-assistant.adapter';
 
 class DummyOutboxPublisher extends OutboxEventPublisher {
   public events: any[] = [];
@@ -93,5 +94,48 @@ describe('ChatAssistantUseCase', () => {
 
     expect(response.toolName).toBeUndefined();
     expect(response.message).toContain('Puedo ayudarte');
+  });
+
+  it('uses request parameters when the model omits create_proposal fields', async () => {
+    const sparseModelAdapter: ChatAssistantModelAdapter = {
+      interpretIntent: jest.fn().mockResolvedValue({
+        toolName: 'create_proposal',
+        toolInput: {},
+        assistantMessage: 'Vamos a crear la propuesta.',
+      }),
+    };
+
+    const useCaseWithSparseModel = new ChatAssistantUseCase(
+      createProposalUseCase,
+      validateOfferEligibilityUseCase,
+      validateBenefitSelectionUseCase,
+      submitProposalUseCase,
+      createCardAccountUseCase,
+      activateBenefitsUseCase,
+      new GetProposalStatusUseCase(repository),
+      generateProposalExplanationUseCase,
+      sparseModelAdapter,
+    );
+
+    const response = await useCaseWithSparseModel.execute({
+      userMessage: 'Quiero solicitar un crédito',
+      proposalId: 'proposal-chat-2',
+      parameters: {
+        proposalId: 'proposal-chat-2',
+        customerProfile: {
+          fullName: 'Maria Silva',
+          nationalId: '99887766',
+          income: 7000,
+          investments: 1200,
+          currentAccountYears: 4,
+          email: 'maria@example.com',
+        },
+        offerType: 'A',
+        selectedBenefits: [BenefitType.CASHBACK],
+      },
+    });
+
+    expect(response.toolName).toBe('create_proposal');
+    expect(response.toolResult).toHaveProperty('proposalId', 'proposal-chat-2');
   });
 });

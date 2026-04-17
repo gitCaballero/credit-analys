@@ -1,84 +1,117 @@
 # Credit Origination Backend
 
-Este proyecto es una API backend en Node.js + TypeScript con NestJS, TypeORM y Postgres.
+Este projeto é uma API backend em Node.js + TypeScript com NestJS, TypeORM e PostgreSQL.
 
-## Ejecutar localmente
+## Requisitos prévios
 
-### con Node.js
-1. Instalar dependencias:
+- Node.js 18+ e npm
+- Docker (opcional, recomendado para banco de dados e contêineres)
+- Git (opcional)
+
+## Configuração inicial
+
+1. Clone o repositório (se ainda não tiver feito):
+   ```bash
+   git clone <repo-url>
+   cd credit-analys
+   ```
+2. Instale as dependências:
    ```bash
    npm install
    ```
-2. Iniciar la base de datos local en Postgres o usar Docker Compose.
-3. Ejecutar en modo desarrollo:
+3. Crie um arquivo `.env` na raiz se quiser definir variáveis de ambiente locais.
+
+## Executar o projeto localmente com Node.js
+
+1. Certifique-se de ter PostgreSQL em execução localmente ou use Docker Compose.
+2. Se utilizar PostgreSQL local, configure a conexão no `.env` ou na configuração da aplicação.
+3. Inicie a aplicação em modo de desenvolvimento:
    ```bash
    npm start
    ```
-4. Compilar y ejecutar producción:
-   ```bash
-   npm run build
-   npm run start:prod
+4. A API ficará disponível em:
+   ```text
+   http://localhost:3000
    ```
 
-### con Docker y Docker Compose
-1. Construir y levantar el stack:
+## Executar com Docker Compose
+
+Esta é a forma recomendada para subir a aplicação junto com o PostgreSQL.
+
+1. Construa e suba os serviços:
    ```bash
    docker compose up --build
    ```
-2. La aplicación quedará disponible en `http://localhost:3000`.
-3. La base de datos Postgres está expuesta en el puerto `5432`.
+2. Aguarde até que o serviço `app` e o banco de dados `db` estejam em execução.
+3. Acesse a API em:
+   ```text
+   http://localhost:3000
+   ```
+4. Neste projeto, o PostgreSQL fica exposto no host na porta `5433`.
 
-## API Endpoints
+### Executar apenas o CLI do assistente no Docker
 
-La API expone los siguientes recursos:
+1. Com o stack já em execução, execute o CLI do assistente:
+   ```bash
+   docker compose run --rm cli
+   ```
+2. Se precisar usar o CLI compilado a partir do contêiner `app`:
+   ```bash
+   docker compose run --rm app npm run assistant:cli:dist
+   ```
 
-- `POST /proposals` - crear una nueva propuesta de tarjeta
-- `POST /proposals/:proposalId/offer-validation` - validar elegibilidad de oferta
-- `POST /proposals/:proposalId/benefits-validation` - validar selección de beneficios
-- `POST /proposals/:proposalId/submit` - enviar propuesta para procesamiento
-- `POST /proposals/:proposalId/card-creation` - solicitar creación de cuenta de tarjeta
-- `POST /proposals/:proposalId/benefits-activation` - activar beneficios aprobados
-- `GET /proposals/:proposalId/status` - consultar estado de la propuesta
-- `POST /assistant/message` - conversar con el asistente de crédito usando las herramientas internas de la aplicación
+### Reconstruir após alterações
 
-## Chat assistant
+Se modificar o código e quiser reconstruir os contêineres:
+```bash
+docker compose build --no-cache
+```
 
-El asistente conversacional permite interactuar con la aplicación usando lenguaje natural para:
+## Comandos importantes
 
-- solicitar una propuesta de crédito
-- consultar el estado de una propuesta
-- validar la elegibilidad de la oferta
-- validar la selección de beneficios
-- enviar la propuesta
-- crear la cuenta de tarjeta
-- activar beneficios
-- pedir una explicación sobre la propuesta
+- `npm start`: executa a aplicação em modo de desenvolvimento com `ts-node-dev`
+- `npm run build`: compila TypeScript em `dist`
+- `npm run start:prod`: executa a aplicação compilada
+- `npm run assistant:cli`: executa o CLI do assistente em modo de desenvolvimento
+- `npm test`: executa os testes com Jest
 
-Si `OPENAI_API_KEY` está definida en el entorno, el servicio usará un modelo OpenAI con mayor capacidad de contexto. Si no, usa un adaptador local de fallback que permite seguir usando el chat con un conjunto básico de reglas y herramientas.
+## Endpoints principais
 
-Con el adaptador local, el asistente:
+- `POST /proposals` - cria uma nova proposta de cartão
+- `POST /proposals/:proposalId/offer-validation` - valida elegibilidade da oferta
+- `POST /proposals/:proposalId/benefits-validation` - valida seleção de benefícios
+- `POST /proposals/:proposalId/submit` - envia proposta para processamento
+- `POST /proposals/:proposalId/card-creation` - solicita criação de conta de cartão
+- `POST /proposals/:proposalId/benefits-activation` - ativa benefícios aprovados
+- `GET /proposals/:proposalId/status` - consulta status da proposta
+- `POST /assistant/message` - conversa com o assistente de crédito
 
-- muestra las opciones disponibles cuando le pides "ayuda" o "mostrar opciones"
-- mantiene el flujo de la acción elegida (por ejemplo, solicitar crédito, consultar estado, validar beneficios)
-- solicita los datos obligatorios uno por uno
-- ejecuta la acción solo cuando ya tiene todos los datos requeridos
+## Uso do assistente (`assistant/message`)
 
-### Ejemplo de uso
+O endpoint `POST /assistant/message` permite interagir com o assistente de crédito usando linguagem natural.
+
+### Variáveis de ambiente opcionais
+
+- `OPENAI_API_KEY`: habilita o adaptador OpenAI para melhorar a interpretação de intenções.
+
+Se não definir `OPENAI_API_KEY`, a aplicação usará um adaptador local de fallback que continua funcionando com regras básicas.
+
+### Exemplo de solicitação para criar uma proposta
 
 ```bash
 curl -X POST http://localhost:3000/assistant/message \
   -H 'Content-Type: application/json' \
   -d '{
-    "userMessage": "Quiero solicitar un crédito con oferta A y cashback",
+    "userMessage": "Quero solicitar um crédito com oferta A e cashback",
     "proposalId": "proposal-1",
     "parameters": {
       "customerProfile": {
-        "fullName": "Juan Perez",
+        "fullName": "João Silva",
         "nationalId": "12345",
         "income": 2000,
         "investments": 1000,
         "currentAccountYears": 1,
-        "email": "juan@example.com"
+        "email": "joao@example.com"
       },
       "offerType": "A",
       "selectedBenefits": ["CASHBACK"]
@@ -86,107 +119,35 @@ curl -X POST http://localhost:3000/assistant/message \
   }'
 ```
 
-Respuesta esperada:
-
-```json
-{
-  "message": "Propuesta creada con ID proposal-1. Continúa con la validación de la oferta o beneficios según prefieras.",
-  "source": "chat-model",
-  "toolName": "create_proposal",
-  "toolResult": {
-    "proposalId": "proposal-1",
-    "customerProfile": {
-      "fullName": "Juan Perez",
-      "nationalId": "12345",
-      "income": 2000,
-      "investments": 1000,
-      "currentAccountYears": 1,
-      "email": "juan@example.com"
-    },
-    "offerType": "A",
-    "selectedBenefits": ["CASHBACK"],
-    "status": "RECEIVED",
-    "cardCreationStatus": "NOT_CREATED"
-  }
-}
-```
-
-### Parámetros de entorno
-
-- `OPENAI_API_KEY`: habilita el adaptador de OpenAI para la interpretación natural de la intención.
-
-### Probar el chat assistant
-
-1. Asegúrate de tener la aplicación ejecutándose en `http://localhost:3000`.
-2. Usa el endpoint `POST /assistant/message` para enviar preguntas al asistente.
-
-#### Con OpenAI
-
-Si usas OpenAI, agrega tu clave en un archivo `.env` o exporta la variable de entorno:
-
-```bash
-export OPENAI_API_KEY=tu_clave_aqui
-```
-
-#### Sin OpenAI
-
-Si no tienes `OPENAI_API_KEY`, el servicio seguirá funcionando con el adaptador local de fallback. Puedes probarlo con el mismo endpoint sin configurar la clave.
-
-Ejemplo rápido sin API key:
+### Exemplo de solicitação para consultar o status
 
 ```bash
 curl -X POST http://localhost:3000/assistant/message \
   -H 'Content-Type: application/json' \
   -d '{
-    "userMessage": "Consulta el estado de mi propuesta proposal-1"
+    "userMessage": "Consulta o status da minha proposta proposal-1"
   }'
 ```
 
-Ejemplo de creación de propuesta sin API key:
+## Notas rápidas
 
-```bash
-curl -X POST http://localhost:3000/assistant/message \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "userMessage": "Quiero solicitar un crédito con oferta A y cashback",
-    "proposalId": "proposal-1",
-    "parameters": {
-      "customerProfile": {
-        "fullName": "Juan Perez",
-        "nationalId": "12345",
-        "income": 2000,
-        "investments": 1000,
-        "currentAccountYears": 1,
-        "email": "juan@example.com"
-      },
-      "offerType": "A",
-      "selectedBenefits": ["CASHBACK"]
-    }
-  }'
-```
+- No Docker, os serviços `app` e `cli` se conectam internamente ao `db` na porta `5432`.
+- No host, o PostgreSQL está disponível em `localhost:5433`.
+- Se usar PowerShell no Windows, substitua `export OPENAI_API_KEY=...` por:
+  ```powershell
+  $env:OPENAI_API_KEY = "sua_chave_aqui"
+  ```
 
-### Estructura de datos
+## Próximos passos
 
-#### `CreateProposalDto`
+1. Instale dependências com `npm install`
+2. Inicie o serviço com `npm start` ou `docker compose up --build`
+3. Teste os endpoints em `http://localhost:3000`
+4. Use `npm run build` e `npm run start:prod` para executar em modo produção
 
-- `proposalId` (string): identificador único de la propuesta
-- `customerProfile`: datos del cliente
-  - `fullName` (string)
-  - `nationalId` (string)
-  - `income` (number)
-  - `investments` (number)
-  - `currentAccountYears` (number)
-  - `email` (string)
-- `offerType` (`A`, `B`, `C`)
-- `selectedBenefits` (array de `BenefitType`): lista de beneficios seleccionados
+## Exemplos de uso
 
-#### `ValidateBenefitsDto`
-
-- `selectedBenefits` (array de `BenefitType`)
-
-## Ejemplos de uso
-
-### 1. Crear una propuesta
+### 1. Criar uma proposta
 
 ```bash
 curl -X POST http://localhost:3000/proposals \
@@ -194,30 +155,30 @@ curl -X POST http://localhost:3000/proposals \
   -d '{
     "proposalId": "proposal-1",
     "customerProfile": {
-      "fullName": "Juan Perez",
+      "fullName": "João Silva",
       "nationalId": "12345",
       "income": 2000,
       "investments": 1000,
       "currentAccountYears": 1,
-      "email": "juan@example.com"
+      "email": "joao@example.com"
     },
     "offerType": "A",
     "selectedBenefits": []
   }'
 ```
 
-Respuesta esperada:
+Resposta esperada:
 
 ```json
 {
   "proposalId": "proposal-1",
   "customerProfile": {
-    "fullName": "Juan Perez",
+    "fullName": "João Silva",
     "nationalId": "12345",
     "income": 2000,
     "investments": 1000,
     "currentAccountYears": 1,
-    "email": "juan@example.com"
+    "email": "joao@example.com"
   },
   "offerType": "A",
   "selectedBenefits": [],
@@ -234,13 +195,13 @@ Respuesta esperada:
 }
 ```
 
-### 2. Consultar estado de la propuesta
+### 2. Consultar status da proposta
 
 ```bash
 curl http://localhost:3000/proposals/proposal-1/status
 ```
 
-Respuesta esperada:
+Resposta esperada:
 
 ```json
 {
@@ -253,13 +214,13 @@ Respuesta esperada:
 }
 ```
 
-### 3. Validar elegibilidad de oferta
+### 3. Validar elegibilidade da oferta
 
 ```bash
 curl -X POST http://localhost:3000/proposals/proposal-1/offer-validation
 ```
 
-Respuesta esperada:
+Resposta esperada:
 
 ```json
 {
@@ -268,7 +229,7 @@ Respuesta esperada:
 }
 ```
 
-### 4. Validar beneficios
+### 4. Validar benefícios
 
 ```bash
 curl -X POST http://localhost:3000/proposals/proposal-1/benefits-validation \
@@ -278,7 +239,7 @@ curl -X POST http://localhost:3000/proposals/proposal-1/benefits-validation \
   }'
 ```
 
-Respuesta esperada:
+Resposta esperada:
 
 ```json
 {
@@ -288,13 +249,21 @@ Respuesta esperada:
 }
 ```
 
-### 5. Enviar propuesta
+### 5. Enviar proposta
 
 ```bash
 curl -X POST http://localhost:3000/proposals/proposal-1/submit
 ```
 
-Respuesta esperada:
+Resposta esperada:
+
+```json
+{
+  "proposalId": "proposal-1",
+  "status": "SUBMITTED"
+}
+```
+
 
 ```json
 {
@@ -359,11 +328,13 @@ Se pueden usar estas variables:
 
 Usar el archivo de ejemplo `.env.example` como referencia.
 
-## Additional Documentation
+## Documentação adicional
 
-The repository includes organized technical documents under `docs/`:
+O repositório inclui documentos técnicos organizados em `docs/`:
 
-- `docs/prompt-outputs.md` - consolidated remaining prompt outputs and architecture guidance.
-- `docs/state-machine.md` - proposal lifecycle states and transitions.
-- `docs/context-memory-strategy.md` - memory and token economy strategy for working on the project.
-- `docs/prompt-guidance.md` - summary of the most relevant prompts and implementation instructions.
+- `docs/prompt-outputs.md` - consolida saídas restantes dos prompts e orientações de arquitetura.
+- `docs/state-machine.md` - estados e transições do ciclo de vida da proposta.
+- `docs/flows.mmd` - fluxo ponta a ponta da originação do cartão, incluindo assistente com IA e fallback local.
+- `docs/context-memory-strategy.md` - estratégia de memória e economia de tokens para trabalho no projeto.
+- `docs/next-steps-recommendations.md` - próximos passos recomendados para fortalecer arquitetura, segurança, assistente e operação.
+- `docs/prompt-guidance.md` - resumo das instruções e prompts mais relevantes do projeto.

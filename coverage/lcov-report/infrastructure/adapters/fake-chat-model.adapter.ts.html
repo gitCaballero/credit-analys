@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">72.13% </span>
+                <span class="strong">70.96% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>44/61</span>
+                <span class='fraction'>44/62</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">30.95% </span>
+                <span class="strong">28.39% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>26/84</span>
+                <span class='fraction'>23/81</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">80% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>4/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">72.13% </span>
+                <span class="strong">70.96% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>44/61</span>
+                <span class='fraction'>44/62</span>
             </div>
         
             
@@ -231,12 +231,7 @@
 <a name='L166'></a><a href='#L166'>166</a>
 <a name='L167'></a><a href='#L167'>167</a>
 <a name='L168'></a><a href='#L168'>168</a>
-<a name='L169'></a><a href='#L169'>169</a>
-<a name='L170'></a><a href='#L170'>170</a>
-<a name='L171'></a><a href='#L171'>171</a>
-<a name='L172'></a><a href='#L172'>172</a>
-<a name='L173'></a><a href='#L173'>173</a>
-<a name='L174'></a><a href='#L174'>174</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L169'></a><a href='#L169'>169</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -287,6 +282,18 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -295,23 +302,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -452,6 +442,7 @@ export class FakeChatModelAdapter implements ChatAssistantModelAdapter {
   async interpretIntent(request: ChatAssistantModelRequest): Promise&lt;ChatAssistantModelResponse&gt; {
     const message = request.userMessage.toLowerCase();
     const proposalId = request.proposalId ?? parseProposalId(request.userMessage);
+    const hasHelpIntent = /opciones|menu|ayuda|que puedes hacer|qué puedes hacer|help|mostrar opciones/i.test(message);
     const hasCreateIntent = /solicitar.*cr[eé]dito|crear.*cr[eé]dito|quiero.*cr[eé]dito|aplicar.*cr[eé]dito/i.test(request.userMessage);
     const hasStatusIntent = /estado|status|situaci[oó]n|consulta.*propuesta/i.test(message);
     const hasValidateOfferIntent = /validar.*oferta|elegibilidad|oferta.*válida/i.test(message);
@@ -461,30 +452,24 @@ export class FakeChatModelAdapter implements ChatAssistantModelAdapter {
     const hasActivateBenefitsIntent = /activar.*beneficios|beneficios.*activar/i.test(message);
     const hasExplainIntent = /explicar|detalle|por qu[eé]|raz[oó]n|resumen/i.test(message);
 &nbsp;
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (hasHelpIntent) {
+      const options = <span class="cstat-no" title="statement not covered" >request.availableTools</span>
+        .map(<span class="fstat-no" title="function not covered" >(t</span>ool) =&gt; <span class="cstat-no" title="statement not covered" >`- ${tool.name}: ${tool.description}`)</span>
+        .join('\n');
+<span class="cstat-no" title="statement not covered" >      return {</span>
+        toolName: 'none',
+        toolInput: {},
+        assistantMessage: `Estas son las opciones disponibles:\n${options}\nIndica cuál deseas usar y te guiaré con los datos necesarios.`,
+      };
+    }
+&nbsp;
     if (hasCreateIntent) {
       const offerType = parseOfferType(request.userMessage) || (<span class="branch-1 cbranch-no" title="branch not covered" >request.parameters?.offerType as OfferType | undefined);</span>
       const selectedBenefits = parseBenefits(request.userMessage).length
         ? parseBenefits(request.userMessage)
         : ((<span class="branch-1 cbranch-no" title="branch not covered" >request.parameters?.selectedBenefits as BenefitType[]) ?? [])</span>;
-      const customerProfile = request.parameters?.customerProfile as Record&lt;string, unknown&gt; | undefined;
+      const customerProfile = (request.parameters?.customerProfile as Record&lt;string, unknown&gt; | undefined) ?? <span class="branch-1 cbranch-no" title="branch not covered" >{};</span>
       const proposal = proposalId ?? <span class="branch-1 cbranch-no" title="branch not covered" >String(Date.now());</span>
-&nbsp;
-      <span class="missing-if-branch" title="if path not taken" >I</span>if (!customerProfile || !customerProfile.fullName || !customerProfile.nationalId || !customerProfile.income) {
-<span class="cstat-no" title="statement not covered" >        return {</span>
-          toolName: 'none',
-          toolInput: {},
-          assistantMessage:
-            'Para iniciar una solicitud de crédito necesito tu nombre completo, documento de identidad, ingresos y el tipo de oferta (A, B o C).',
-        };
-      }
-&nbsp;
-      <span class="missing-if-branch" title="if path not taken" >I</span>if (!offerType) {
-<span class="cstat-no" title="statement not covered" >        return {</span>
-          toolName: 'none',
-          toolInput: {},
-          assistantMessage: 'Indica si deseas la oferta A, B o C para tu crédito.',
-        };
-      }
 &nbsp;
       return {
         toolName: 'create_proposal',
@@ -494,7 +479,7 @@ export class FakeChatModelAdapter implements ChatAssistantModelAdapter {
           offerType,
           selectedBenefits,
         },
-        assistantMessage: 'Voy a crear tu solicitud de crédito ahora.',
+        assistantMessage: 'Perfecto, comencemos la solicitud de crédito. Te iré pidiendo los datos necesarios uno por uno.',
       };
     }
 &nbsp;
@@ -589,7 +574,7 @@ export class FakeChatModelAdapter implements ChatAssistantModelAdapter {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-16T01:39:00.639Z
+                at 2026-04-16T02:58:44.778Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

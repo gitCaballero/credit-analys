@@ -1,0 +1,119 @@
+(node:33508) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[31m[Nest] 33508  - [39m04/16/2026, 12:46:32 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mCannot read properties of undefined (reading 'toLowerCase')[39m
+TypeError: Cannot read properties of undefined (reading 'toLowerCase')
+    at FakeChatModelAdapter.interpretIntent (D:\credit-analys\dist\infrastructure\adapters\fake-chat-model.adapter.js:40:45)
+    at ChatAssistantUseCase.execute (D:\credit-analys\dist\application\use-cases\chat-assistant.use-case.js:86:53)
+    at AssistantController.handleMessage (D:\credit-analys\dist\interfaces\http\assistant.controller.js:24:42)
+    at D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:38:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 33508  - [39m04/16/2026, 12:46:35 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mCannot read properties of undefined (reading 'toLowerCase')[39m
+TypeError: Cannot read properties of undefined (reading 'toLowerCase')
+    at FakeChatModelAdapter.interpretIntent (D:\credit-analys\dist\infrastructure\adapters\fake-chat-model.adapter.js:40:45)
+    at ChatAssistantUseCase.execute (D:\credit-analys\dist\application\use-cases\chat-assistant.use-case.js:86:53)
+    at AssistantController.handleMessage (D:\credit-analys\dist\interfaces\http\assistant.controller.js:24:42)
+    at D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:38:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 33508  - [39m04/16/2026, 12:46:36 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mCannot read properties of undefined (reading 'toLowerCase')[39m
+TypeError: Cannot read properties of undefined (reading 'toLowerCase')
+    at FakeChatModelAdapter.interpretIntent (D:\credit-analys\dist\infrastructure\adapters\fake-chat-model.adapter.js:40:45)
+    at ChatAssistantUseCase.execute (D:\credit-analys\dist\application\use-cases\chat-assistant.use-case.js:86:53)
+    at AssistantController.handleMessage (D:\credit-analys\dist\interfaces\http\assistant.controller.js:24:42)
+    at D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:38:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 33508  - [39m04/16/2026, 12:46:36 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mCannot read properties of undefined (reading 'toLowerCase')[39m
+TypeError: Cannot read properties of undefined (reading 'toLowerCase')
+    at FakeChatModelAdapter.interpretIntent (D:\credit-analys\dist\infrastructure\adapters\fake-chat-model.adapter.js:40:45)
+    at ChatAssistantUseCase.execute (D:\credit-analys\dist\application\use-cases\chat-assistant.use-case.js:86:53)
+    at AssistantController.handleMessage (D:\credit-analys\dist\interfaces\http\assistant.controller.js:24:42)
+    at D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:38:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 33508  - [39m04/16/2026, 12:46:36 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mCannot read properties of undefined (reading 'toLowerCase')[39m
+TypeError: Cannot read properties of undefined (reading 'toLowerCase')
+    at FakeChatModelAdapter.interpretIntent (D:\credit-analys\dist\infrastructure\adapters\fake-chat-model.adapter.js:40:45)
+    at ChatAssistantUseCase.execute (D:\credit-analys\dist\application\use-cases\chat-assistant.use-case.js:86:53)
+    at AssistantController.handleMessage (D:\credit-analys\dist\interfaces\http\assistant.controller.js:24:42)
+    at D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:38:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 33508  - [39m04/16/2026, 12:46:49 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mCannot read properties of undefined (reading 'toLowerCase')[39m
+TypeError: Cannot read properties of undefined (reading 'toLowerCase')
+    at FakeChatModelAdapter.interpretIntent (D:\credit-analys\dist\infrastructure\adapters\fake-chat-model.adapter.js:40:45)
+    at ChatAssistantUseCase.execute (D:\credit-analys\dist\application\use-cases\chat-assistant.use-case.js:86:53)
+    at AssistantController.handleMessage (D:\credit-analys\dist\interfaces\http\assistant.controller.js:24:42)
+    at D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:38:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 33508  - [39m04/16/2026, 12:46:53 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mCannot read properties of undefined (reading 'toLowerCase')[39m
+TypeError: Cannot read properties of undefined (reading 'toLowerCase')
+    at FakeChatModelAdapter.interpretIntent (D:\credit-analys\dist\infrastructure\adapters\fake-chat-model.adapter.js:40:45)
+    at ChatAssistantUseCase.execute (D:\credit-analys\dist\application\use-cases\chat-assistant.use-case.js:86:53)
+    at AssistantController.handleMessage (D:\credit-analys\dist\interfaces\http\assistant.controller.js:24:42)
+    at D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:38:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 33508  - [39m04/16/2026, 12:46:53 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mCannot read properties of undefined (reading 'toLowerCase')[39m
+TypeError: Cannot read properties of undefined (reading 'toLowerCase')
+    at FakeChatModelAdapter.interpretIntent (D:\credit-analys\dist\infrastructure\adapters\fake-chat-model.adapter.js:40:45)
+    at ChatAssistantUseCase.execute (D:\credit-analys\dist\application\use-cases\chat-assistant.use-case.js:86:53)
+    at AssistantController.handleMessage (D:\credit-analys\dist\interfaces\http\assistant.controller.js:24:42)
+    at D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:38:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 33508  - [39m04/16/2026, 12:46:54 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mCannot read properties of undefined (reading 'toLowerCase')[39m
+TypeError: Cannot read properties of undefined (reading 'toLowerCase')
+    at FakeChatModelAdapter.interpretIntent (D:\credit-analys\dist\infrastructure\adapters\fake-chat-model.adapter.js:40:45)
+    at ChatAssistantUseCase.execute (D:\credit-analys\dist\application\use-cases\chat-assistant.use-case.js:86:53)
+    at AssistantController.handleMessage (D:\credit-analys\dist\interfaces\http\assistant.controller.js:24:42)
+    at D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:38:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 33508  - [39m04/16/2026, 12:46:54 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mCannot read properties of undefined (reading 'toLowerCase')[39m
+TypeError: Cannot read properties of undefined (reading 'toLowerCase')
+    at FakeChatModelAdapter.interpretIntent (D:\credit-analys\dist\infrastructure\adapters\fake-chat-model.adapter.js:40:45)
+    at ChatAssistantUseCase.execute (D:\credit-analys\dist\application\use-cases\chat-assistant.use-case.js:86:53)
+    at AssistantController.handleMessage (D:\credit-analys\dist\interfaces\http\assistant.controller.js:24:42)
+    at D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:38:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 33508  - [39m04/16/2026, 12:46:54 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mCannot read properties of undefined (reading 'toLowerCase')[39m
+TypeError: Cannot read properties of undefined (reading 'toLowerCase')
+    at FakeChatModelAdapter.interpretIntent (D:\credit-analys\dist\infrastructure\adapters\fake-chat-model.adapter.js:40:45)
+    at ChatAssistantUseCase.execute (D:\credit-analys\dist\application\use-cases\chat-assistant.use-case.js:86:53)
+    at AssistantController.handleMessage (D:\credit-analys\dist\interfaces\http\assistant.controller.js:24:42)
+    at D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:38:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 33508  - [39m04/16/2026, 12:46:55 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mCannot read properties of undefined (reading 'toLowerCase')[39m
+TypeError: Cannot read properties of undefined (reading 'toLowerCase')
+    at FakeChatModelAdapter.interpretIntent (D:\credit-analys\dist\infrastructure\adapters\fake-chat-model.adapter.js:40:45)
+    at ChatAssistantUseCase.execute (D:\credit-analys\dist\application\use-cases\chat-assistant.use-case.js:86:53)
+    at AssistantController.handleMessage (D:\credit-analys\dist\interfaces\http\assistant.controller.js:24:42)
+    at D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:38:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 33508  - [39m04/16/2026, 12:47:26 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mCannot read properties of undefined (reading 'toLowerCase')[39m
+TypeError: Cannot read properties of undefined (reading 'toLowerCase')
+    at FakeChatModelAdapter.interpretIntent (D:\credit-analys\dist\infrastructure\adapters\fake-chat-model.adapter.js:40:45)
+    at ChatAssistantUseCase.execute (D:\credit-analys\dist\application\use-cases\chat-assistant.use-case.js:86:53)
+    at AssistantController.handleMessage (D:\credit-analys\dist\interfaces\http\assistant.controller.js:24:42)
+    at D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:38:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async D:\credit-analys\node_modules\@nestjs\core\router\router-proxy.js:9:17

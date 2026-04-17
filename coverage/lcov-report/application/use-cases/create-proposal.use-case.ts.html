@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">27.27% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>3/11</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">27.27% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/11</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -116,8 +116,8 @@
 <a name='L51'></a><a href='#L51'>51</a>
 <a name='L52'></a><a href='#L52'>52</a>
 <a name='L53'></a><a href='#L53'>53</a>
-<a name='L54'></a><a href='#L54'>54</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L54'></a><a href='#L54'>54</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -137,26 +137,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -165,8 +153,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { CreditCardProposal } from '../../domain/entities/credit-card-proposal.entity';
@@ -191,13 +191,13 @@ export interface CreateProposalCommand {
 }
 &nbsp;
 export class CreateProposalUseCase {
-<span class="fstat-no" title="function not covered" >  constructor(</span>
-    private readonly <span class="cstat-no" title="statement not covered" >repository: ProposalRepository,</span>
-    private readonly <span class="cstat-no" title="statement not covered" >outboxPublisher: OutboxEventPublisher,</span>
+  constructor(
+    private readonly repository: ProposalRepository,
+    private readonly outboxPublisher: OutboxEventPublisher,
   ) {}
 &nbsp;
-<span class="fstat-no" title="function not covered" >  async </span>execute(command: CreateProposalCommand): Promise&lt;CreditCardProposal&gt; {
-    const profile = <span class="cstat-no" title="statement not covered" >new CustomerProfile(</span>
+  async execute(command: CreateProposalCommand): Promise&lt;CreditCardProposal&gt; {
+    const profile = new CustomerProfile(
       command.customerProfile.fullName,
       command.customerProfile.nationalId,
       command.customerProfile.income,
@@ -206,10 +206,10 @@ export class CreateProposalUseCase {
       command.customerProfile.email,
     );
 &nbsp;
-    const proposal = <span class="cstat-no" title="statement not covered" >new CreditCardProposal(command.proposalId, profile, command.offerType, command.selectedBenefits);</span>
-<span class="cstat-no" title="statement not covered" >    proposal.addAudit('proposal.created', 'Proposal entity created');</span>
-<span class="cstat-no" title="statement not covered" >    await this.repository.save(proposal);</span>
-<span class="cstat-no" title="statement not covered" >    await this.outboxPublisher.publish({</span>
+    const proposal = new CreditCardProposal(command.proposalId, profile, command.offerType, command.selectedBenefits);
+    proposal.addAudit('proposal.created', 'Proposal entity created');
+    await this.repository.save(proposal);
+    await this.outboxPublisher.publish({
       eventType: 'proposal.received',
       aggregateId: proposal.proposalId,
       payload: {
@@ -219,7 +219,7 @@ export class CreateProposalUseCase {
       },
       occurredAt: new Date().toISOString(),
     });
-<span class="cstat-no" title="statement not covered" >    return proposal;</span>
+    return proposal;
   }
 }
 &nbsp;</pre></td></tr></table></pre>
@@ -229,7 +229,7 @@ export class CreateProposalUseCase {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-16T01:41:34.537Z
+                at 2026-04-16T02:58:44.778Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

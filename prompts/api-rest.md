@@ -1,4 +1,4 @@
-Genera la especificación de API REST para el sistema de solicitud de tarjeta de crédito.
+Gere a especificação da API REST para o sistema de solicitação de cartão de crédito.
 
 Endpoints mínimos:
 - POST /proposals
@@ -8,22 +8,22 @@ Endpoints mínimos:
 - POST /proposals/{proposalId}/submit
 - GET /proposals/{proposalId}/status
 
-Quiero:
-- request/response DTOs
-- códigos HTTP correctos
-- ejemplos JSON
-- validaciones
-- errores esperados
-- contrato consistente y fácil de consumir por frontend
+Quero:
+- DTOs de request/response
+- códigos HTTP corretos
+- exemplos JSON
+- validações
+- erros esperados
+- contrato consistente e fácil de consumir pelo frontend
 
-Restricciones:
-- No exponer información sensible innecesaria
-- Mascarar datos delicados en respuestas y logs
-- Incluir correlationId y requestId
-- Respuestas pensadas para una UI que necesita mostrar:
-  - estatus de propuesta
-  - tarjeta creada o no
-  - beneficios activados
-  - mensajes de negocio entendibles
+Restrições:
+- Não expor informações sensíveis desnecessárias
+- Mascarar dados delicados em respostas e logs
+- Incluir correlationId e requestId
+- Respostas pensadas para uma UI que precisa mostrar:
+  - status da proposta
+  - cartão criado ou não
+  - benefícios ativados
+  - mensagens de negócio compreensíveis
 
-Si lo consideras mejor, puedes agregar endpoints adicionales, pero justifica cada uno.
+Se achar melhor, você pode adicionar endpoints adicionais, mas justifique cada um.

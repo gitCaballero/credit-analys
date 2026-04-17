@@ -3,6 +3,7 @@ import { CreateCardAccountUseCase } from '../../../src/application/use-cases/cre
 import { InMemoryProposalRepository } from '../../../src/infrastructure/repositories/in-memory-proposal.repository';
 import { FakeCardAccountAdapter } from '../../../src/infrastructure/adapters/fake-card-account.adapter';
 import { OutboxEventPublisher } from '../../../src/application/services/outbox-event.publisher';
+import { ProposalStatus } from '../../../src/domain/enums/proposal-status.enum';
 
 class DummyPublisher extends OutboxEventPublisher {
   public events: any[] = [];
@@ -39,9 +40,11 @@ describe('CreateCardAccountUseCase', () => {
     await repository.save(proposal);
 
     const result = await createCardAccountUseCase.execute('proposal-2');
+    const updatedProposal = await repository.findById('proposal-2');
 
     expect(result.cardId).toBe('CARD-proposal-2');
     expect(result.status).toBe('CREATED');
+    expect(updatedProposal?.status).toBe(ProposalStatus.CARD_ACCOUNT_CREATED);
     expect(publisher.events.some((event) => event.eventType === 'card.created')).toBe(true);
   });
 });

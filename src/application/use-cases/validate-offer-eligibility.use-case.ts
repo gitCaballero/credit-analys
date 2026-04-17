@@ -21,7 +21,7 @@ export class ValidateOfferEligibilityUseCase {
       throw new Error(`Proposal ${proposalId} not found`);
     }
 
-    const result = this.policy.evaluate(proposal.customerProfile);
+    const result = this.policy.evaluate(proposal.customerProfile, proposal.offerType);
     if (result.approved) {
       proposal.markOfferValidated();
     } else {

@@ -1,19 +1,19 @@
 import { BenefitType } from '../enums/benefit-type.enum';
 
 /**
- * BenefitSelection wraps a list of chosen benefits for a proposal.
- * It also enforces rules for valid benefit combinations.
+ * BenefitSelection encapsula a lista de benefícios escolhidos para uma proposta.
+ * Também aplica regras para combinações válidas de benefícios.
  */
 export class BenefitSelection {
   constructor(
-    /** Chosen benefit types for the proposal. */
+    /** Tipos de benefício escolhidos para a proposta. */
     readonly benefits: BenefitType[],
   ) {
     this.validateSelection(benefits);
   }
 
   /**
-   * Validates the benefit combination rules.
+   * Valida as regras da combinação de benefícios.
    */
   private validateSelection(benefits: BenefitType[]): void {
     if (!benefits || benefits.length === 0) {
