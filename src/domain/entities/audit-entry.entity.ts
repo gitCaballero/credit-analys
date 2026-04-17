@@ -1,16 +1,16 @@
 /**
- * AuditEntry records an action or state change in a credit card proposal.
- * It is used to keep an immutable trail of significant domain events.
+ * AuditEntry registra uma ação ou mudança de estado em uma proposta de cartão.
+ * É usado para manter uma trilha imutável de eventos relevantes do domínio.
  */
 export class AuditEntry {
   constructor(
-    /** The domain event name, such as proposal.created or card.created. */
+    /** Nome do evento de domínio, como proposal.created ou card.created. */
     readonly event: string,
-    /** The exact timestamp when the event occurred. */
+    /** Momento exato em que o evento ocorreu. */
     readonly timestamp: Date,
-    /** A human-readable description or details of the event. */
+    /** Descrição legível ou detalhe adicional do evento. */
     readonly detail: string,
-    /** Optional actor or system component that caused the event. */
+    /** Ator ou componente do sistema que causou o evento, quando disponível. */
     readonly actor?: string,
   ) {}
 }

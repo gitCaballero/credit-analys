@@ -1,6 +1,6 @@
-Con base en la arquitectura definida, genera la estructura inicial de un proyecto NestJS + TypeScript para esta solución.
+Com base na arquitetura definida, gere a estrutura inicial de um projeto NestJS + TypeScript para esta solução.
 
-Quiero una estructura orientada a dominio con separación clara entre:
+Quero uma estrutura orientada a domínio com separação clara entre:
 - application
 - domain
 - infrastructure
@@ -18,12 +18,12 @@ Módulos mínimos:
 - audit
 - security/shared
 
-Incluye:
-- nombres de carpetas y archivos
-- responsabilidad de cada módulo
-- clases o interfaces principales por módulo
-- dónde ubicar DTOs, controllers, use cases, repositories, domain events, mappers y adapters
-- convención para eventos e integración externa
-- convención para manejo de errores de negocio
+Inclua:
+- nomes de pastas e arquivos
+- responsabilidade de cada módulo
+- classes ou interfaces principais por módulo
+- onde localizar DTOs, controllers, use cases, repositories, domain events, mappers e adapters
+- convenção para eventos e integração externa
+- convenção para tratamento de erros de negócio
 
-No generes todavía todo el código fuente. Primero entrégame el árbol de carpetas completo y una breve explicación de cada parte.
+Não gere ainda todo o código-fonte. Primeiro me entregue a árvore de pastas completa e uma breve explicação de cada parte.

@@ -21,42 +21,42 @@ import {
 const TOOL_DESCRIPTORS: ChatToolDescriptor[] = [
   {
     name: 'create_proposal',
-    description: 'Solicitar un crédito nuevo con perfil de cliente, tipo de oferta y beneficios seleccionados.',
+    description: 'Solicitar um novo crédito com perfil do cliente, tipo de oferta e benefícios selecionados.',
     requiredParameters: ['proposalId', 'customerProfile', 'offerType', 'selectedBenefits'],
   },
   {
     name: 'check_status',
-    description: 'Consultar el estado actual de una propuesta de crédito.',
+    description: 'Consultar o status atual de uma proposta de crédito.',
     requiredParameters: ['proposalId'],
   },
   {
     name: 'validate_offer',
-    description: 'Validar la elegibilidad de la propuesta para la oferta elegida.',
+    description: 'Validar a elegibilidade da proposta para a oferta escolhida.',
     requiredParameters: ['proposalId'],
   },
   {
     name: 'validate_benefits',
-    description: 'Validar los beneficios seleccionados para la propuesta.',
+    description: 'Validar os benefícios selecionados para a proposta.',
     requiredParameters: ['proposalId', 'selectedBenefits'],
   },
   {
     name: 'submit_proposal',
-    description: 'Enviar la propuesta de crédito para continuar con la creación de tarjeta.',
+    description: 'Enviar a proposta de crédito para continuar com a criação do cartão.',
     requiredParameters: ['proposalId'],
   },
   {
     name: 'create_card_account',
-    description: 'Solicitar la creación de la cuenta de tarjeta asociada a la propuesta.',
+    description: 'Solicitar a criação da conta de cartão associada à proposta.',
     requiredParameters: ['proposalId'],
   },
   {
     name: 'activate_benefits',
-    description: 'Activar los beneficios una vez que la tarjeta de crédito esté creada.',
+    description: 'Ativar os benefícios assim que o cartão de crédito for criado.',
     requiredParameters: ['proposalId'],
   },
   {
     name: 'explain_proposal',
-    description: 'Generar una explicación del estado y decisiones de la propuesta.',
+    description: 'Gerar uma explicação do status e das decisões da proposta.',
     requiredParameters: ['proposalId'],
   },
 ];
@@ -92,22 +92,58 @@ export class ChatAssistantUseCase {
       };
     }
 
-    const toolResult = await this.invokeTool(
-      interpreted.toolName,
-      interpreted.toolInput,
-      request.proposalId,
-      request.parameters,
-    );
+    try {
+      const toolResult = await this.invokeTool(
+        interpreted.toolName,
+        interpreted.toolInput,
+        request.proposalId,
+        request.parameters,
+      );
 
-    return {
-      message: toolResult.message,
-      toolName: interpreted.toolName,
-      toolResult: toolResult.data,
-      source: 'chat-model',
-      metadata: {
-        requestedBy: request.proposalId ?? 'anonymous',
-      },
-    };
+      return {
+        message: toolResult.message,
+        toolName: interpreted.toolName,
+        toolResult: toolResult.data,
+        source: 'chat-model',
+        metadata: {
+          requestedBy: request.proposalId ?? 'anonymous',
+        },
+      };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Ocurrió un error inesperado.';
+      if (message.includes('benefits validation')) {
+        return {
+          message:
+            'A proposta deve completar a validação de benefícios antes de ser enviada. Por favor, use a opção 4 para validar os benefícios primeiro.',
+          source: 'chat-model',
+        };
+      }
+      return {
+        message: `Erro ao processar a solicitação: ${message}`,
+        source: 'chat-model',
+      };
+    }
+  }
+
+  async executeTool(toolName: string, parameters: Record<string, unknown>): Promise<ChatAssistantResponse> {
+    try {
+      const toolResult = await this.invokeTool(toolName, parameters, parameters.proposalId as string | undefined, parameters);
+      return {
+        message: toolResult.message,
+        toolName,
+        toolResult: toolResult.data,
+        source: 'cli',
+        metadata: {
+          requestedBy: (parameters.proposalId as string) ?? 'anonymous',
+        },
+      };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Ocurrió un error inesperado.';
+      return {
+        message: `Error al ejecutar la herramienta: ${message}`,
+        source: 'cli',
+      };
+    }
   }
 
   private async invokeTool(
@@ -119,7 +155,7 @@ export class ChatAssistantUseCase {
     const proposalId = (toolInput.proposalId as string) ?? fallbackProposalId;
     switch (toolName) {
       case 'create_proposal':
-        return this.handleCreateProposal(toolInput);
+        return this.handleCreateProposal(toolInput, requestParameters);
       case 'check_status':
         return this.handleCheckStatus(proposalId);
       case 'validate_offer':
@@ -136,7 +172,7 @@ export class ChatAssistantUseCase {
         return this.handleExplainProposal(proposalId);
       default:
         return {
-          message: 'No encontré una herramienta válida para tu solicitud.',
+          message: 'Não encontrei uma ferramenta válida para a sua solicitação.',
           data: null,
         };
     }
@@ -155,31 +191,31 @@ export class ChatAssistantUseCase {
     const proposalId = String(toolInput.proposalId ?? requestParameters?.proposalId ?? `proposal-${Date.now()}`);
 
     const missingProfileField = [
-      { key: 'fullName', label: 'nombre completo' },
-      { key: 'nationalId', label: 'documento de identidad' },
-      { key: 'income', label: 'ingresos' },
-      { key: 'investments', label: 'inversiones' },
-      { key: 'currentAccountYears', label: 'años de antigüedad en la cuenta' },
-      { key: 'email', label: 'correo electrónico' },
+      { key: 'fullName', label: 'nome completo' },
+      { key: 'nationalId', label: 'documento de identidade' },
+      { key: 'income', label: 'renda' },
+      { key: 'investments', label: 'investimentos' },
+      { key: 'currentAccountYears', label: 'anos de conta corrente' },
+      { key: 'email', label: 'email' },
     ].find((field) => !customerProfile[field.key as keyof typeof customerProfile]);
 
     if (missingProfileField) {
       return {
-        message: `Por favor, indícame el ${missingProfileField.label} del cliente.`,
+        message: `Por favor, informe o ${missingProfileField.label} do cliente.`,
         data: null,
       };
     }
 
     if (!offerType) {
       return {
-        message: 'Indica el tipo de oferta que deseas: A, B o C.',
+        message: 'Indique o tipo de oferta desejada: A, B ou C.',
         data: null,
       };
     }
 
     if (!selectedBenefits || selectedBenefits.length === 0) {
       return {
-        message: 'Por favor, dime qué beneficios deseas incluir en la tarjeta (por ejemplo: CASHBACK, POINTS, TRAVEL_INSURANCE, VIP_LOUNGE).',
+        message: 'Por favor, informe quais benefícios deseja incluir no cartão (por exemplo: CASHBACK, POINTS, TRAVEL_INSURANCE, VIP_LOUNGE).',
         data: null,
       };
     }
@@ -200,7 +236,7 @@ export class ChatAssistantUseCase {
 
     const result = await this.createProposalUseCase.execute(command);
     return {
-      message: `Propuesta creada con ID ${result.proposalId}. Continúa con la validación de la oferta o beneficios según prefieras.`,
+      message: `Proposta criada com ID ${result.proposalId}. Continue com a validação da oferta ou dos benefícios conforme preferir.`,
       data: result,
     };
   }
@@ -208,7 +244,7 @@ export class ChatAssistantUseCase {
   private async handleCheckStatus(proposalId?: string) {
     if (!proposalId) {
       return {
-        message: 'Necesito el ID de la propuesta para consultar su estado.',
+        message: 'Preciso do ID da proposta para consultar seu status.',
         data: null,
       };
     }
@@ -216,13 +252,13 @@ export class ChatAssistantUseCase {
     const result = await this.getProposalStatusUseCase.execute(proposalId);
     if (!result) {
       return {
-        message: `No encontré una propuesta con el ID ${proposalId}.`,
+        message: `Não encontrei uma proposta com o ID ${proposalId}.`,
         data: null,
       };
     }
 
     return {
-      message: `El estado de la propuesta ${proposalId} es ${result.status}.`,
+      message: `O status da proposta ${proposalId} é ${result.status}.`,
       data: result,
     };
   }
@@ -230,7 +266,7 @@ export class ChatAssistantUseCase {
   private async handleValidateOffer(proposalId?: string) {
     if (!proposalId) {
       return {
-        message: 'Por favor indica el ID de la propuesta para validar la oferta.',
+        message: 'Por favor, informe o ID da proposta para validar a oferta.',
         data: null,
       };
     }
@@ -238,8 +274,8 @@ export class ChatAssistantUseCase {
     const result = await this.validateOfferEligibilityUseCase.execute(proposalId);
     return {
       message: result.approved
-        ? `La oferta ha sido validada. Ofertas elegibles: ${result.eligibleOffers.join(', ')}.`
-        : `La oferta fue rechazada. Razones: ${result.reasons.join(', ')}.`,
+        ? `A oferta foi validada. Ofertas elegíveis: ${result.eligibleOffers.join(', ')}.`
+        : `A oferta foi rejeitada. Motivos: ${result.reasons.join(', ')}.`,
       data: result,
     };
   }
@@ -247,14 +283,14 @@ export class ChatAssistantUseCase {
   private async handleValidateBenefits(proposalId?: string, selectedBenefits?: BenefitType[]) {
     if (!proposalId) {
       return {
-        message: 'Necesito el ID de la propuesta para validar los beneficios.',
+        message: 'Preciso do ID da proposta para validar os benefícios.',
         data: null,
       };
     }
 
     if (!selectedBenefits || selectedBenefits.length === 0) {
       return {
-        message: 'Indica los beneficios que quieres validar, por ejemplo: CASHBACK, POINTS o TRAVEL_INSURANCE.',
+        message: 'Informe os benefícios que deseja validar, por exemplo: CASHBACK, POINTS ou TRAVEL_INSURANCE.',
         data: null,
       };
     }
@@ -262,8 +298,8 @@ export class ChatAssistantUseCase {
     const result = await this.validateBenefitSelectionUseCase.execute(proposalId, selectedBenefits);
     return {
       message: result.approved
-        ? `Los beneficios han sido validados correctamente.`
-        : `Los beneficios no pudieron ser validados. Razones: ${result.reasons.join(', ')}.`,
+        ? `Os benefícios foram validados corretamente.`
+        : `Os benefícios não puderam ser validados. Motivos: ${result.reasons.join(', ')}.`,
       data: result,
     };
   }
@@ -271,14 +307,14 @@ export class ChatAssistantUseCase {
   private async handleSubmitProposal(proposalId?: string) {
     if (!proposalId) {
       return {
-        message: 'Necesito el ID de la propuesta para enviar la solicitud.',
+        message: 'Preciso do ID da proposta para enviar a solicitação.',
         data: null,
       };
     }
 
     const result = await this.submitProposalUseCase.execute(proposalId);
     return {
-      message: `La propuesta ${proposalId} fue enviada. Estado actual: ${result.status}.`,
+      message: `A proposta ${proposalId} foi enviada. Status atual: ${result.status}.`,
       data: result,
     };
   }
@@ -286,14 +322,14 @@ export class ChatAssistantUseCase {
   private async handleCreateCardAccount(proposalId?: string) {
     if (!proposalId) {
       return {
-        message: 'Necesito el ID de la propuesta para crear la cuenta de tarjeta.',
+        message: 'Preciso do ID da proposta para criar a conta do cartão.',
         data: null,
       };
     }
 
     const result = await this.createCardAccountUseCase.execute(proposalId);
     return {
-      message: `Solicitud de creación de tarjeta registrada. Estado: ${result.status}.`,
+      message: `Solicitação de criação do cartão registrada. Status: ${result.status}.`,
       data: result,
     };
   }
@@ -301,7 +337,7 @@ export class ChatAssistantUseCase {
   private async handleActivateBenefits(proposalId?: string) {
     if (!proposalId) {
       return {
-        message: 'Necesito el ID de la propuesta para activar los beneficios.',
+        message: 'Preciso do ID da proposta para ativar os benefícios.',
         data: null,
       };
     }
@@ -309,8 +345,8 @@ export class ChatAssistantUseCase {
     const result = await this.activateBenefitsUseCase.execute(proposalId);
     return {
       message: result.completed
-        ? `Los beneficios se activaron correctamente y la propuesta está completa.`
-        : `La activación se procesó. Revisa el estado actual de la propuesta.`,
+        ? `Os benefícios foram ativados corretamente e a proposta está completa.`
+        : `A ativação foi processada. Verifique o status atual da proposta.`,
       data: result,
     };
   }
@@ -318,7 +354,7 @@ export class ChatAssistantUseCase {
   private async handleExplainProposal(proposalId?: string) {
     if (!proposalId) {
       return {
-        message: 'Necesito el ID de la propuesta para generar una explicación.',
+        message: 'Preciso do ID da proposta para gerar uma explicação.',
         data: null,
       };
     }
@@ -326,7 +362,7 @@ export class ChatAssistantUseCase {
     const result = await this.generateProposalExplanationUseCase.execute(proposalId);
     if (!result) {
       return {
-        message: `No encontré la propuesta ${proposalId}.`,
+        message: `Não encontrei a proposta ${proposalId}.`,
         data: null,
       };
     }

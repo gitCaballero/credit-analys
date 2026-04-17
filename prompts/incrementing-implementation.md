@@ -1,35 +1,35 @@
-Quiero que implementes esta solución por fases y no todo de una vez.
+Quero que você implemente esta solução por fases e não tudo de uma vez.
 
 Fase 1:
-- scaffolding del proyecto
-- modelo de dominio
-- reglas de elegibilidad
-- tests unitarios
+- scaffolding do projeto
+- modelo de domínio
+- regras de elegibilidade
+- testes unitários
 
 Fase 2:
 - APIs REST
-- persistencia
-- historial de estados
-- validaciones
+- persistência
+- histórico de estados
+- validações
 
 Fase 3:
 - eventos
 - outbox
-- integración simulada con card-account
-- integración simulada con benefits
+- integração simulada com card-account
+- integração simulada com benefits
 
 Fase 4:
-- observabilidad
-- seguridad
+- observabilidade
+- segurança
 - hardening
-- documentación
+- documentação
 
 Para cada fase:
-- lista de archivos a crear
-- código completo de cada archivo
-- justificación breve
-- criterios de aceptación
-- cómo ejecutar localmente
-- cómo probar
+- lista de arquivos a criar
+- código completo de cada arquivo
+- justificativa breve
+- critérios de aceitação
+- como executar localmente
+- como testar
 
-Empieza solamente por la Fase 1.
+Comece somente pela Fase 1.

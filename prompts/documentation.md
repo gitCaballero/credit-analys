@@ -1,19 +1,19 @@
-Genera la documentación técnica inicial del proyecto en formato README.md.
+Gere a documentação técnica inicial do projeto em formato README.md.
 
-Debe incluir:
-- objetivo del sistema
-- alcance
-- reglas de negocio
-- decisiones arquitectónicas
+Deve incluir:
+- objetivo do sistema
+- escopo
+- regras de negócio
+- decisões arquitetônicas
 - módulos
-- flujo principal
+- fluxo principal
 - endpoints
 - eventos
-- seguridad
-- observabilidad
-- estrategia de pruebas
-- cómo ejecutar localmente
+- segurança
+- observabilidade
+- estratégia de testes
+- como executar localmente
 - backlog técnico futuro
 
-Quiero un README orientado a un equipo de ingeniería senior, claro y accionable.
-No inventes funcionalidades fuera del alcance definido.
+Quero um README direcionado a uma equipe de engenharia sênior, claro e acionável.
+Não invente funcionalidades fora do escopo definido.

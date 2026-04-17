@@ -4,60 +4,60 @@ import { OfferType } from '../../../domain/enums/offer-type.enum';
 import { BenefitType } from '../../../domain/enums/benefit-type.enum';
 
 /**
- * Data transfer object for customer profile data submitted in proposal creation.
+ * DTO com os dados do perfil do cliente enviados na criação da proposta.
  */
 export class CustomerProfileDto {
   @IsString()
   @IsNotEmpty()
-  /** Customer full name. */
+  /** Nome completo do cliente. */
   fullName!: string;
 
   @IsString()
   @IsNotEmpty()
-  /** Customer national ID. */
+  /** Documento de identificação nacional do cliente. */
   nationalId!: string;
 
   @IsNumber()
   @Min(0)
-  /** Customer income amount. */
+  /** Valor da renda do cliente. */
   income!: number;
 
   @IsNumber()
   @Min(0)
-  /** Total customer investments. */
+  /** Total de investimentos do cliente. */
   investments!: number;
 
   @IsNumber()
   @Min(0)
-  /** Number of years the customer has held a current account. */
+  /** Quantidade de anos em que o cliente mantém conta corrente. */
   currentAccountYears!: number;
 
   @IsEmail()
-  /** Customer email address. */
+  /** Endereço de e-mail do cliente. */
   email!: string;
 }
 
 /**
- * Request DTO for creating a new credit card proposal.
+ * DTO de requisição para criar uma nova proposta de cartão de crédito.
  */
 export class CreateProposalDto {
   @IsString()
   @IsNotEmpty()
-  /** Unique proposal identifier. */
+  /** Identificador único da proposta. */
   proposalId!: string;
 
   @ValidateNested()
   @Type(() => CustomerProfileDto)
-  /** Customer profile payload. */
+  /** Payload com os dados do perfil do cliente. */
   customerProfile!: CustomerProfileDto;
 
   @IsEnum(OfferType)
-  /** Selected offer type for this proposal. */
+  /** Tipo de oferta selecionado para esta proposta. */
   offerType!: OfferType;
 
   @IsArray()
   @ArrayUnique()
   @IsEnum(BenefitType, { each: true })
-  /** Selected benefits for the proposal. */
+  /** Benefícios selecionados para a proposta. */
   selectedBenefits!: BenefitType[];
 }

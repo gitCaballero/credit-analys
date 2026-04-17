@@ -1,72 +1,83 @@
-# Proposal State Machine
+# Máquina de Estados da Proposta
 
-This document describes the main states of a credit card proposal and the transitions between them.
+Este documento descreve o estado de ciclo de vida armazenado em `proposal.status` e o estado operacional complementar armazenado em `proposal.cardCreationStatus`.
 
-## States
+## Estado canônico de ciclo de vida
 
 - `RECEIVED`
-  - Proposal has been created and stored.
-  - No offer or benefit validation has yet occurred.
+  A proposta foi criada e persistida.
 
 - `OFFER_VALIDATED`
-  - The selected offer has been validated successfully.
-  - The proposal is eligible for the chosen offer.
+  A oferta selecionada foi validada com base no perfil do cliente.
 
 - `BENEFITS_VALIDATED`
-  - Selected benefits have been validated against offer rules.
-  - The proposal is ready to be submitted.
+  Os benefícios escolhidos foram validados para a oferta selecionada.
 
 - `SUBMITTED`
-  - The proposal has been submitted for processing.
-  - This is the transition point to card creation.
+  A proposta está pronta para a criação da conta do cartão.
 
-- `CARD_CREATION_REQUESTED`
-  - Card account creation has been requested.
-  - A downstream integration or simulation is triggered.
-
-- `CARD_CREATED`
-  - A card account was successfully created.
-  - A `cardId` is available.
-
-- `BENEFITS_ACTIVATION_REQUESTED`
-  - Benefit activation was requested after the card was created.
-
-- `BENEFITS_ACTIVATED`
-  - All eligible benefits have been activated.
-  - The proposal is ready to complete.
+- `CARD_ACCOUNT_CREATED`
+  A conta do cartão foi criada com sucesso e existe um `cardId`.
 
 - `COMPLETED`
-  - The full origination flow finished successfully.
+  A criação do cartão e a ativação de benefícios terminaram com sucesso.
 
 - `REJECTED`
-  - The proposal was rejected at any stage.
-  - `rejectionReason` should contain the reason.
+  A proposta falhou em uma validação de negócio.
 
-## State Transitions
+## Estado complementar de criação do cartão
+
+- `NOT_CREATED`
+  A criação do cartão ainda não começou.
+
+- `REQUESTED`
+  A criação do cartão foi solicitada ao adapter downstream.
+
+- `CREATED`
+  A criação do cartão foi concluída com sucesso.
+
+- `FAILED`
+  A criação do cartão falhou por motivo técnico ou por falha downstream.
+
+## Transições de estado
 
 ```mermaid
 stateDiagram-v2
   [*] --> RECEIVED
   RECEIVED --> OFFER_VALIDATED
+  RECEIVED --> REJECTED
   OFFER_VALIDATED --> BENEFITS_VALIDATED
+  OFFER_VALIDATED --> REJECTED
   BENEFITS_VALIDATED --> SUBMITTED
-  SUBMITTED --> CARD_CREATION_REQUESTED
-  CARD_CREATION_REQUESTED --> CARD_CREATED
-  CARD_CREATED --> BENEFITS_ACTIVATION_REQUESTED
-  BENEFITS_ACTIVATION_REQUESTED --> BENEFITS_ACTIVATED
-  BENEFITS_ACTIVATED --> COMPLETED
-
-  SUBMITTED --> REJECTED
-  CARD_CREATION_REQUESTED --> REJECTED
-  CARD_CREATED --> REJECTED
-  BENEFITS_ACTIVATION_REQUESTED --> REJECTED
+  BENEFITS_VALIDATED --> REJECTED
+  SUBMITTED --> CARD_ACCOUNT_CREATED
+  CARD_ACCOUNT_CREATED --> COMPLETED
 ```
 
-## Event-driven state model
+## Progressão operacional
 
-For auditability and replay, every transition should emit a domain event.
+O fluxo de criação da conta do cartão é rastreado separadamente do ciclo de vida principal:
 
-Example events:
+```mermaid
+stateDiagram-v2
+  [*] --> NOT_CREATED
+  NOT_CREATED --> REQUESTED
+  REQUESTED --> CREATED
+  REQUESTED --> FAILED
+```
+
+## Regras para manter o modelo coerente
+
+- `status` é o ciclo de vida canônico visível ao usuário.
+- `cardCreationStatus` é um detalhe operacional da integração de provisionamento do cartão.
+- A validação da oferta só deve aprovar a proposta se o cliente for elegível para o `offerType` selecionado.
+- Uma proposta só pode ser enviada a partir de `BENEFITS_VALIDATED`.
+- A ativação de benefícios exige `cardCreationStatus = CREATED`.
+- Cada transição deve registrar uma entrada de auditoria e emitir um evento de outbox quando aplicável.
+
+## Modelo de eventos
+
+Eventos recomendados para replay e observabilidade:
 
 - `proposal.received`
 - `offer.eligibility.calculated`
@@ -74,14 +85,7 @@ Example events:
 - `proposal.submitted`
 - `card.creation.requested`
 - `card.created`
-- `benefits.activation.requested`
+- `card.creation.failed`
 - `benefits.activated`
 - `proposal.completed`
 - `proposal.rejected`
-
-## Notes
-
-- `RECEIVED` is the initial persistent state for a new proposal.
-- `REJECTED` is terminal for failed business or technical flows.
-- Each state transition should append an audit entry and optionally persist an outbox event.
-- This state machine can be used to drive both API responses and internal orchestration.

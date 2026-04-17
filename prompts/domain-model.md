@@ -1,13 +1,13 @@
-Ahora genera el modelo de dominio en TypeScript para la solución de solicitud de tarjeta de crédito.
+Agora gere o modelo de domínio em TypeScript para a solução de solicitação de cartão de crédito.
 
-Quiero que definas:
+Quero que defina:
 - entidades
 - value objects
 - enums
 - agregados
-- invariantes de negocio
+- invariantes de negócio
 
-Debes contemplar como mínimo:
+Deve contemplar no mínimo:
 - CreditCardProposal
 - CustomerProfile
 - SelectedOffer
@@ -17,19 +17,19 @@ Debes contemplar como mínimo:
 - BenefitActivationStatus
 - AuditEntry
 
-Reglas de negocio obligatorias:
-- Oferta A: renta > 1000
-- Oferta B: renta > 15000 e inversiones > 5000
-- Oferta C: renta > 50000 y cuenta corriente > 2 años
-- Cashback y Puntos son mutuamente excluyentes
-- Seguro de viaje solo con oferta C
-- Sala VIP solo con oferta B o C
+Regras de negócio obrigatórias:
+- Oferta A: renda > 1000
+- Oferta B: renda > 15000 e investimentos > 5000
+- Oferta C: renda > 50000 e conta corrente > 2 anos
+- Cashback e Pontos são mutuamente exclusivos
+- Seguro de viagem apenas com oferta C
+- Sala VIP apenas com oferta B ou C
 
-Quiero que modeles las reglas como invariantes explícitas del dominio cuando sea posible, y como políticas/servicios de dominio cuando corresponda.
+Quero que modele as regras como invariantes explícitas do domínio quando possível, e como políticas/serviços de domínio quando for apropriado.
 
 Entrega:
 - código TypeScript
-- comentarios breves y útiles
-- nombres claros
-- sin dependencias de framework en domain
-- usa principios DDD
+- comentários breves e úteis
+- nomes claros
+- sem dependências de framework em domain
+- use princípios DDD

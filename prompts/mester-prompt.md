@@ -1,65 +1,65 @@
-Quiero que actúes como un Software Architect senior especializado en originación de tarjetas de crédito, onboarding digital, reglas de elegibilidad y sistemas event-driven.
+Quero que você atue como um Software Architect sênior especializado em originação de cartões de crédito, onboarding digital, regras de elegibilidade e sistemas event-driven.
 
-Diseña y genera una solución backend en Node.js + TypeScript para un flujo de solicitud de tarjeta de crédito donde el cliente puede elegir beneficios durante la jornada.
+Desenhe e gere uma solução backend em Node.js + TypeScript para um fluxo de solicitação de cartão de crédito onde o cliente pode escolher benefícios durante a jornada.
 
-Contexto de negocio:
-- Existen 3 ofertas de tarjeta:
-  - Oferta A: renta > 1000
-  - Oferta B: renta > 15000 e inversiones > 5000
-  - Oferta C: renta > 50000 y cuenta corriente con más de 2 años
-- Beneficios:
-  - Cashback: incompatible con Puntos
-  - Puntos: incompatible con Cashback
-  - Seguro de viaje: solo para oferta C
-  - Sala VIP: solo para ofertas B y C
-- Al final el cliente debe visualizar:
-  - estado de la propuesta
-  - si la cuenta tarjeta fue creada o no
-  - qué beneficios quedaron activados
+Contexto de negócio:
+- Existem 3 ofertas de cartão:
+  - Oferta A: renda > 1000
+  - Oferta B: renda > 15000 e investimentos > 5000
+  - Oferta C: renda > 50000 e conta corrente com mais de 2 anos
+- Benefícios:
+  - Cashback: incompatível com Pontos
+  - Pontos: incompatível com Cashback
+  - Seguro de viagem: apenas para oferta C
+  - Sala VIP: apenas para ofertas B e C
+- No final, o cliente deve visualizar:
+  - estado da proposta
+  - se a conta do cartão foi criada ou não
+  - quais benefícios foram ativados
 
-Requisitos funcionales mínimos:
-- Recibir propuesta con datos personales, tipo de oferta y selección de beneficios
-- Validar elegibilidad de oferta y beneficios
-- Crear cuenta tarjeta
-- Activar beneficios elegibles
-- Comunicar estado final al cliente
-- Registrar eventos e histórico del proceso
-- Tratar datos sensibles con cuidado
+Requisitos funcionais mínimos:
+- Receber proposta com dados pessoais, tipo de oferta e seleção de benefícios
+- Validar elegibilidade de oferta e benefícios
+- Criar conta do cartão
+- Ativar benefícios elegíveis
+- Comunicar estado final ao cliente
+- Registrar eventos e histórico do processo
+- Tratar dados sensíveis com cuidado
 
-Requisitos no funcionales:
-- Arquitectura auditable y explicable
-- Reglas desacopladas del flujo técnico
-- Idempotencia
-- Observabilidad
-- Seguridad de datos sensibles
-- Diseño preparado para evolución futura
+Requisitos não funcionais:
+- Arquitetura auditável e explicável
+- Regras desacopladas do fluxo técnico
+- Idempotência
+- Observabilidade
+- Segurança de dados sensíveis
+- Design preparado para evolução futura
 
-Decisiones arquitectónicas deseadas:
+Decisões arquitetônicas desejadas:
 - Node.js + TypeScript
-- Preferencia por NestJS
-- Arquitectura hexagonal o clean architecture
-- Event-driven para procesos de dominio
-- Motor de reglas determinístico, no IA generativa para la decisión principal
-- Persistencia de propuestas, estado e histórico
-- Integración desacoplada para card account creation y benefits activation
+- Preferência por NestJS
+- Arquitetura hexagonal ou clean architecture
+- Event-driven para processos de domínio
+- Motor de regras determinístico, não IA generativa para a decisão principal
+- Persistência de propostas, estado e histórico
+- Integração desacoplada para card account creation e benefits activation
 - API REST para front-end
-- Posibilidad futura de integrar IA solo como asistente de jornada, nunca como decisor final
+- Possibilidade futura de integrar IA apenas como assistente de jornada, nunca como decisor final
 
-Tu tarea:
-1. Proponer la arquitectura de carpetas y módulos
-2. Definir bounded contexts o módulos principales
-3. Definir entidades, value objects, enums y casos de uso
-4. Definir flujo síncrono y asíncrono
-5. Sugerir base de datos y broker de eventos
-6. Proponer contratos de API
-7. Proponer eventos de dominio
-8. Identificar riesgos de negocio y técnicos
-9. Mostrar decisiones y trade-offs
-10. No generes todo de una vez: empieza por la arquitectura general y espera mi confirmación
+Sua tarefa:
+1. Propor a arquitetura de pastas e módulos
+2. Definir bounded contexts ou módulos principais
+3. Definir entidades, value objects, enums e casos de uso
+4. Definir fluxo síncrono e assíncrono
+5. Sugerir banco de dados e broker de eventos
+6. Propor contratos de API
+7. Propor eventos de domínio
+8. Identificar riscos de negócio e técnicos
+9. Mostrar decisões e trade-offs
+10. Não gere tudo de uma vez: comece pela arquitetura geral e espere minha confirmação
 
 Entrega esperada:
-- Explicación de arquitectura
-- Estructura de carpetas
+- Explicação da arquitetura
+- Estrutura de pastas
 - Lista de módulos
-- Diagrama textual del flujo
-- Supuestos explícitos
+- Diagrama textual do fluxo
+- Suposições explícitas

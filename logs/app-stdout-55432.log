@@ -1,0 +1,23 @@
+
+> credit-originacion@0.1.0 start:prod
+> node dist/main.js
+
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +59ms[39m
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +4ms[39m
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmCoreModule dependencies initialized[39m[38;5;3m +148ms[39m
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +4ms[39m
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mProposalModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mProposalController {/proposals}:[39m[38;5;3m +9ms[39m
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/proposals, POST} route[39m[38;5;3m +3ms[39m
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/proposals/:proposalId/offer-validation, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/proposals/:proposalId/benefits-validation, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/proposals/:proposalId/submit, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/proposals/:proposalId/card-creation, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/proposals/:proposalId/benefits-activation, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/proposals/:proposalId/status, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/proposals/:proposalId/explanation, GET} route[39m[38;5;3m +2ms[39m
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAssistantController {/assistant}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/assistant/message, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 33508  - [39m04/16/2026, 12:45:33 AM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +2ms[39m
+Credit origination service running on http://localhost:3000

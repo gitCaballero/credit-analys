@@ -2,36 +2,52 @@ import { ChatAssistantModelAdapter, ChatAssistantModelRequest, ChatAssistantMode
 import { BenefitType } from '../../domain/enums/benefit-type.enum';
 import { OfferType } from '../../domain/enums/offer-type.enum';
 
-const parseProposalId = (message: string): string | undefined => {
-  const match = message.match(/\b([A-Za-z0-9\-_]{6,})\b/);
+const parseProposalId = (message?: string): string | undefined => {
+  if (!message) {
+    return undefined;
+  }
+  const match = message.match(/\b([A-Za-z0-9\-_]*\d+[A-Za-z0-9\-_]*)\b/);
   return match ? match[1].toUpperCase() : undefined;
 };
 
-const parseOfferType = (message: string): OfferType | undefined => {
-  if (message.includes('oferta a') || message.includes('tipo a') || message.includes('oferta A') || message.includes('tipo A')) {
+const parseOfferType = (message?: string): OfferType | undefined => {
+  if (!message) {
+    return undefined;
+  }
+  const normalized = message.toLocaleLowerCase();
+  if (normalized.includes('oferta a') || normalized.includes('tipo a')) {
     return OfferType.A;
   }
-  if (message.includes('oferta b') || message.includes('tipo b') || message.includes('oferta B') || message.includes('tipo B')) {
+  if (normalized.includes('oferta b') || normalized.includes('tipo b')) {
     return OfferType.B;
   }
-  if (message.includes('oferta c') || message.includes('tipo c') || message.includes('oferta C') || message.includes('tipo C')) {
+  if (normalized.includes('oferta c') || normalized.includes('tipo c')) {
     return OfferType.C;
   }
   return undefined;
 };
 
-const parseBenefits = (message: string): BenefitType[] => {
+const parseBenefits = (message?: string): BenefitType[] => {
   const benefits: BenefitType[] = [];
-  if (message.includes('cashback')) {
+  if (!message) {
+    return benefits;
+  }
+  const normalized = message.toLocaleLowerCase();
+  if (normalized.includes('cashback')) {
     benefits.push(BenefitType.CASHBACK);
   }
-  if (message.includes('points') || message.includes('puntos')) {
+  if (normalized.includes('points') || normalized.includes('puntos') || normalized.includes('pontos')) {
     benefits.push(BenefitType.POINTS);
   }
-  if (message.includes('travel') || message.includes('viaje') || message.includes('insurance')) {
+  if (
+    normalized.includes('travel') ||
+    normalized.includes('viaje') ||
+    normalized.includes('viagem') ||
+    normalized.includes('insurance')
+  ) {
     benefits.push(BenefitType.TRAVEL_INSURANCE);
   }
-  if (message.includes('vip') || message.includes('lounge')) {
+  if (normalized.includes('vip') || normalized.includes('lounge')) {
     benefits.push(BenefitType.VIP_LOUNGE);
   }
   return benefits;
@@ -39,17 +55,21 @@ const parseBenefits = (message: string): BenefitType[] => {
 
 export class FakeChatModelAdapter implements ChatAssistantModelAdapter {
   async interpretIntent(request: ChatAssistantModelRequest): Promise<ChatAssistantModelResponse> {
-    const message = request.userMessage.toLowerCase();
-    const proposalId = request.proposalId ?? parseProposalId(request.userMessage);
-    const hasHelpIntent = /opciones|menu|ayuda|que puedes hacer|qué puedes hacer|help|mostrar opciones/i.test(message);
-    const hasCreateIntent = /solicitar.*cr[eé]dito|crear.*cr[eé]dito|quiero.*cr[eé]dito|aplicar.*cr[eé]dito/i.test(request.userMessage);
-    const hasStatusIntent = /estado|status|situaci[oó]n|consulta.*propuesta/i.test(message);
-    const hasValidateOfferIntent = /validar.*oferta|elegibilidad|oferta.*válida/i.test(message);
-    const hasValidateBenefitsIntent = /validar.*beneficios|beneficios.*validar|beneficios/i.test(message);
-    const hasSubmitIntent = /enviar.*propuesta|presentar.*propuesta|submit|finalizar.*propuesta/i.test(message);
-    const hasCreateCardIntent = /crear.*tarjeta|generar.*tarjeta|emitir.*tarjeta|tarjeta.*cuenta/i.test(message);
-    const hasActivateBenefitsIntent = /activar.*beneficios|beneficios.*activar/i.test(message);
-    const hasExplainIntent = /explicar|detalle|por qu[eé]|raz[oó]n|resumen/i.test(message);
+    const userMessage = request.userMessage ?? '';
+    const message = userMessage.toLocaleLowerCase();
+    const proposalId =
+      request.proposalId ??
+      (request.parameters?.proposalId as string | undefined) ??
+      parseProposalId(userMessage);
+    const hasHelpIntent = /opciones|opcoes|opções|menu|ajuda|ayuda|que puedes hacer|qué puedes hacer|help|mostrar opciones/i.test(message);
+    const hasCreateIntent = /solicitar.*cr[eé]dito|crear.*cr[eé]dito|quiero.*cr[eé]dito|aplicar.*cr[eé]dito|solicitar.*cr[ée]dito|cri(ar|ar).*cr[ée]dito|quero.*cr[ée]dito|aplicar.*cr[ée]dito|quero.*cart[oó]o/i.test(userMessage);
+    const hasStatusIntent = /estado|status|situaci[oó]n|situa[cç][aã]o|consulta.*propuesta|consulta.*proposta/i.test(message);
+    const hasValidateOfferIntent = /validar.*oferta|elegibilidad|oferta.*válida|oferta.*válida|validar.*oferta|elegibilidade/i.test(message);
+    const hasValidateBenefitsIntent = /(?:validar|validación|validacíon).*beneficios|beneficios.*(?:validar|validación|validacíon)|validar.*benef[ií]cios|benef[ií]cios.*validar/i.test(message);
+    const hasSubmitIntent = /enviar.*propuesta|presentar.*propuesta|submit|finalizar.*propuesta|enviar.*proposta|finalizar.*proposta/i.test(message);
+    const hasCreateCardIntent = /crear.*tarjeta|generar.*tarjeta|emitir.*tarjeta|tarjeta.*cuenta|criar.*cart[aã]o|gerar.*cart[aã]o|emitir.*cart[aã]o/i.test(message);
+    const hasActivateBenefitsIntent = /(?:activar|ativar).*beneficios|beneficios.*(?:activar|ativar)|(?:activar|ativar).*benef[ií]cios|benef[ií]cios.*(?:activar|ativar)/i.test(message);
+    const hasExplainIntent = /explicar|detalle|por qu[eé]|raz[oó]n|resumen|detalhe|por que|raz[oó]es|resumo/i.test(message);
 
     if (hasHelpIntent) {
       const options = request.availableTools
@@ -58,7 +78,7 @@ export class FakeChatModelAdapter implements ChatAssistantModelAdapter {
       return {
         toolName: 'none',
         toolInput: {},
-        assistantMessage: `Estas son las opciones disponibles:\n${options}\nIndica cuál deseas usar y te guiaré con los datos necesarios.`,
+        assistantMessage: `Estas são as opções disponíveis:\n${options}\nIndique qual deseja usar e eu o guiarei com os dados necessários.`,
       };
     }
 
@@ -78,7 +98,7 @@ export class FakeChatModelAdapter implements ChatAssistantModelAdapter {
           offerType,
           selectedBenefits,
         },
-        assistantMessage: 'Perfecto, comencemos la solicitud de crédito. Te iré pidiendo los datos necesarios uno por uno.',
+        assistantMessage: 'Perfeito, vamos iniciar a solicitação de crédito. Vou pedir os dados necessários um por um.',
       };
     }
 
@@ -87,8 +107,8 @@ export class FakeChatModelAdapter implements ChatAssistantModelAdapter {
         toolName: proposalId ? 'check_status' : 'none',
         toolInput: { proposalId },
         assistantMessage: proposalId
-          ? 'Consulto el estado de tu propuesta.'
-          : 'Necesito el ID de la propuesta para consultar su estado. Por favor, indícalo.',
+          ? 'Consultando o status da sua proposta.'
+          : 'Preciso do ID da proposta para consultar seu status. Por favor, informe-o.',
       };
     }
 
@@ -97,8 +117,8 @@ export class FakeChatModelAdapter implements ChatAssistantModelAdapter {
         toolName: proposalId ? 'validate_offer' : 'none',
         toolInput: { proposalId },
         assistantMessage: proposalId
-          ? 'Valido la elegibilidad de la oferta para la propuesta indicada.'
-          : 'Por favor indícame el ID de la propuesta que deseas validar.',
+          ? 'Validando a elegibilidade da oferta para a proposta indicada.'
+          : 'Por favor, informe o ID da proposta que deseja validar.',
       };
     }
 
@@ -113,8 +133,8 @@ export class FakeChatModelAdapter implements ChatAssistantModelAdapter {
           selectedBenefits,
         },
         assistantMessage: proposalId
-          ? 'Valido la selección de beneficios para esa propuesta.'
-          : 'Necesito el ID de la propuesta para validar los beneficios.',
+          ? 'Validando a seleção de benefícios para essa proposta.'
+          : 'Preciso do ID da proposta para validar os benefícios.',
       };
     }
 
@@ -123,8 +143,8 @@ export class FakeChatModelAdapter implements ChatAssistantModelAdapter {
         toolName: proposalId ? 'submit_proposal' : 'none',
         toolInput: { proposalId },
         assistantMessage: proposalId
-          ? 'Procedo a enviar la propuesta.'
-          : 'Por favor dame el ID de la propuesta que deseas enviar.',
+          ? 'Enviando a proposta.'
+          : 'Por favor, informe o ID da proposta que deseja enviar.',
       };
     }
 
@@ -133,8 +153,8 @@ export class FakeChatModelAdapter implements ChatAssistantModelAdapter {
         toolName: proposalId ? 'create_card_account' : 'none',
         toolInput: { proposalId },
         assistantMessage: proposalId
-          ? 'Solicito la creación de la tarjeta para esa propuesta.'
-          : 'Necesito el ID de la propuesta para crear la cuenta de tarjeta.',
+          ? 'Solicitando a criação do cartão para essa proposta.'
+          : 'Preciso do ID da proposta para criar a conta do cartão.',
       };
     }
 
@@ -143,8 +163,8 @@ export class FakeChatModelAdapter implements ChatAssistantModelAdapter {
         toolName: proposalId ? 'activate_benefits' : 'none',
         toolInput: { proposalId },
         assistantMessage: proposalId
-          ? 'Activo los beneficios para tu tarjeta.'
-          : 'Indícame el ID de la propuesta para activar los beneficios.',
+          ? 'Ativando os benefícios para o seu cartão.'
+          : 'Informe o ID da proposta para ativar os benefícios.',
       };
     }
 
@@ -153,8 +173,8 @@ export class FakeChatModelAdapter implements ChatAssistantModelAdapter {
         toolName: proposalId ? 'explain_proposal' : 'none',
         toolInput: { proposalId },
         assistantMessage: proposalId
-          ? 'Te explico el estado y acciones de tu propuesta.'
-          : 'Dame el ID de la propuesta para que pueda explicarla.',
+          ? 'Vou explicar o status e as ações da sua proposta.'
+          : 'Informe o ID da proposta para que eu possa explicá-la.',
       };
     }
 
@@ -162,7 +182,7 @@ export class FakeChatModelAdapter implements ChatAssistantModelAdapter {
       toolName: 'none',
       toolInput: {},
       assistantMessage:
-        'Puedo ayudarte a solicitar un crédito, consultar el estado de una propuesta, validar la oferta, validar beneficios, enviar una propuesta, crear una tarjeta o activar beneficios. ¿Qué deseas hacer?',
+        'Posso ajudá-lo a solicitar um crédito, consultar o status de uma proposta, validar a oferta, validar benefícios, enviar a proposta, criar um cartão ou ativar benefícios. O que deseja fazer?',
     };
   }
 }

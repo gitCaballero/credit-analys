@@ -1,27 +1,27 @@
-Genera la estrategia de seguridad para el sistema de solicitud de tarjeta de crédito.
+Gere a estratégia de segurança para o sistema de solicitação de cartão de crédito.
 
-Necesito recomendaciones y ejemplos de implementación para:
-- protección de datos sensibles
-- cifrado en tránsito y en reposo
-- enmascaramiento en logs
-- control de acceso
-- secrets management
-- validación de entrada
-- protección contra replay o duplicación
-- idempotencia
-- trazabilidad y auditoría
-- separación entre datos de negocio y datos sensibles
+Preciso de recomendações e exemplos de implementação para:
+- proteção de dados sensíveis
+- criptografia em trânsito e em repouso
+- mascaramento em logs
+- controle de acesso
+- gerenciamento de segredos
+- validação de entrada
+- proteção contra replay ou duplicação
+- idempotência
+- rastreabilidade e auditoria
+- separação entre dados de negócio e dados sensíveis
 
 Contexto:
-- El sistema procesa datos personales y financieros
-- Debe ser auditable
-- Debe evitar exposición innecesaria de PII
-- La cuenta corriente ya existe, pero el sistema crea la cuenta tarjeta
-- Debe haber logs útiles sin filtrar información sensible
+- O sistema processa dados pessoais e financeiros
+- Deve ser auditável
+- Deve evitar exposição desnecessária de PII
+- A conta corrente já existe, mas o sistema cria a conta do cartão
+- Deve haver logs úteis sem filtrar informações sensíveis
 
-Quiero:
-- lineamientos de arquitectura
-- middleware/guards/interceptors sugeridos en NestJS
-- utilidades para mascarar datos
-- estrategia de clasificación de datos
-- checklist de seguridad para producción
+Quero:
+- diretrizes de arquitetura
+- middleware/guards/interceptors sugeridos em NestJS
+- utilitários para mascarar dados
+- estratégia de classificação de dados
+- checklist de segurança para produção

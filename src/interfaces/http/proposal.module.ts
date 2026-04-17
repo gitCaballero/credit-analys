@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AssistantController } from './assistant.controller';
-import { ProposalController } from './proposal.controller';
-import { ProposalService } from './proposal.service';
+import { AssistantController } from './controllers/assistant.controller';
+import { ProposalController } from './controllers/proposal.controller';
+import { ProposalService } from './services/proposal.service';
 import { TypeormProposalRepository } from '../../infrastructure/repositories/typeorm-proposal.repository';
 import { TypeormOutboxRepository } from '../../infrastructure/repositories/typeorm-outbox.repository';
 import { FakeCardAccountAdapter } from '../../infrastructure/adapters/fake-card-account.adapter';

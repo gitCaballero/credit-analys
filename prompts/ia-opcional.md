@@ -1,22 +1,22 @@
-Diseña una capa opcional de IA asistiva para esta solución, sin participar en la decisión principal de crédito.
+Desenhe uma camada opcional de IA assistiva para esta solução, sem participar da decisão principal de crédito.
 
 Objetivos permitidos para IA:
-- explicar al cliente por qué una oferta o beneficio está disponible o no
-- ayudar al operador interno a consultar el historial del proceso
-- generar mensajes de negocio más claros a partir de resultados estructurados
-- asistir en atención y journey guidance
+- explicar ao cliente por que uma oferta ou benefício está disponível ou não
+- ajudar o operador interno a consultar o histórico do processo
+- gerar mensagens de negócio mais claras a partir de resultados estruturados
+- assistir no atendimento e na orientação da jornada
 
-Restricciones:
-- la IA no puede decidir elegibilidad
-- la IA no puede crear reglas de negocio automáticamente
-- la fuente de verdad siempre es el motor determinístico
-- todas las respuestas de IA deben basarse en datos estructurados de entrada
-- debe existir trazabilidad del prompt, respuesta y contexto enviado
+Restrições:
+- a IA não pode decidir elegibilidade
+- a IA não pode criar regras de negócio automaticamente
+- a fonte da verdade sempre é o motor determinístico
+- todas as respostas de IA devem se basear em dados estruturados de entrada
+- deve existir rastreabilidade do prompt, resposta e contexto enviado
 
-Quiero:
-- arquitectura de esta capa
+Quero:
+- arquitetura dessa camada
 - casos de uso permitidos
-- payload de entrada/salida
+- payload de entrada/saída
 - guardrails
-- riesgos
-- ejemplo de adapter para integrar con un LLM
+- riscos
+- exemplo de adapter para integrar com um LLM

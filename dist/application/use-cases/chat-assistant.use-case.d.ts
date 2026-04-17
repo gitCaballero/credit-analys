@@ -1,0 +1,32 @@
+import { CreateProposalUseCase } from './create-proposal.use-case';
+import { GetProposalStatusUseCase } from './get-proposal-status.use-case';
+import { ValidateOfferEligibilityUseCase } from './validate-offer-eligibility.use-case';
+import { ValidateBenefitSelectionUseCase } from './validate-benefits.use-case';
+import { SubmitProposalUseCase } from './submit-proposal.use-case';
+import { CreateCardAccountUseCase } from './create-card-account.use-case';
+import { ActivateBenefitsUseCase } from './activate-benefits.use-case';
+import { GenerateProposalExplanationUseCase } from './generate-proposal-explanation.use-case';
+import { ChatAssistantModelAdapter, ChatAssistantRequest, ChatAssistantResponse } from '../ports/chat-assistant.adapter';
+export declare class ChatAssistantUseCase {
+    private readonly createProposalUseCase;
+    private readonly validateOfferEligibilityUseCase;
+    private readonly validateBenefitSelectionUseCase;
+    private readonly submitProposalUseCase;
+    private readonly createCardAccountUseCase;
+    private readonly activateBenefitsUseCase;
+    private readonly getProposalStatusUseCase;
+    private readonly generateProposalExplanationUseCase;
+    private readonly modelAdapter;
+    constructor(createProposalUseCase: CreateProposalUseCase, validateOfferEligibilityUseCase: ValidateOfferEligibilityUseCase, validateBenefitSelectionUseCase: ValidateBenefitSelectionUseCase, submitProposalUseCase: SubmitProposalUseCase, createCardAccountUseCase: CreateCardAccountUseCase, activateBenefitsUseCase: ActivateBenefitsUseCase, getProposalStatusUseCase: GetProposalStatusUseCase, generateProposalExplanationUseCase: GenerateProposalExplanationUseCase, modelAdapter: ChatAssistantModelAdapter);
+    execute(request: ChatAssistantRequest): Promise<ChatAssistantResponse>;
+    executeTool(toolName: string, parameters: Record<string, unknown>): Promise<ChatAssistantResponse>;
+    private invokeTool;
+    private handleCreateProposal;
+    private handleCheckStatus;
+    private handleValidateOffer;
+    private handleValidateBenefits;
+    private handleSubmitProposal;
+    private handleCreateCardAccount;
+    private handleActivateBenefits;
+    private handleExplainProposal;
+}

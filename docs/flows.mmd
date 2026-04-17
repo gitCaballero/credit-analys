@@ -1,17 +1,63 @@
-graph LR
-  UI[User Interface]
-  API[API Layer]
-  App[Application Services]
-  Domain[Domain Model]
-  DB[PostgreSQL]
-  Outbox[Outbox Table]
-  CardAdapter[Card Account Adapter]
-  BenefitsAdapter[Benefits Adapter]
+flowchart TD
+  A["Cliente inicia solicitud"] --> B["Captura de datos personales + oferta + beneficios"]
+  B --> C["Crear propuesta en dominio"]
+  C --> C1["Guardar propuesta y publicar evento proposal.received"]
+  C1 --> D["Validar elegibilidad de oferta"]
 
-  UI --> API
-  API --> App
-  App --> Domain
-  Domain --> DB
-  App --> Outbox
-  App --> CardAdapter
-  App --> BenefitsAdapter
+  D --> D1["Evaluar reglas de oferta"]
+  D1 --> D2["Oferta seleccionada en lista de elegibles?"]
+  D2 -->|Sí| D3["Marcar propuesta como OFFER_VALIDATED"]
+  D2 -->|No| Z["Marcar propuesta como REJECTED y exponer motivo"]
+
+  D3 --> E["Validar selección de beneficios"]
+  E --> E1["Verificar reglas de beneficios"]
+  E1 --> E2["Cashback y Points no pueden coexistir"]
+  E1 --> E3["Travel Insurance solo para oferta C"]
+  E1 --> E4["VIP Lounge solo para oferta B o C"]
+  E1 --> E5["Descartar beneficios desconocidos"]
+
+  E5 -->|Sin rechazos| E6["Marcar propuesta como BENEFITS_VALIDATED"]
+  E5 -->|Con rechazos| Z
+
+  E6 --> F["Enviar propuesta para procesamiento"]
+  F --> F1["Actualizar estado a SUBMITTED"]
+  F1 --> G["Crear cuenta de tarjeta"]
+
+  G -->|Creada| G1["Actualizar cardCreationStatus a CREATED"]
+  G -->|Falló| Y["Actualizar cardCreationStatus a NOT_CREATED"]
+
+  G1 --> H["Activar beneficios elegibles"]
+  H --> H1["Publicar evento benefits.activation.requested"]
+  H1 --> H2["Actualizar beneficios activados y estado final"]
+
+  H2 --> J["Cliente consulta estado final"]
+  Y --> J
+  Z --> J
+
+  C1 --> K["Registrar auditoría y evento outbox"]
+  D3 --> K
+  Z --> K
+  E6 --> K
+  F1 --> K
+  G1 --> K
+  H2 --> K
+
+  L["Assistente IA com OpenAI"] --> B
+  L --> J
+  M["Fallback local sem OPENAI_API_KEY"] --> B
+  M --> J
+
+  N["Proteção de dados sensíveis"] --> C
+  N --> K
+
+  subgraph Regras_de_Oferta["Reglas de elegibilidad de oferta"]
+    D1
+    D2
+  end
+
+  subgraph Reglas_de_Beneficios["Reglas de selección de beneficios"]
+    E2
+    E3
+    E4
+    E5
+  end

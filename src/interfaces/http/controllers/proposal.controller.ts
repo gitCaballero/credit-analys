@@ -1,7 +1,7 @@
 import { Body, Controller, Get, NotFoundException, Param, Post } from '@nestjs/common';
-import { CreateProposalDto } from './dto/create-proposal.dto';
-import { ValidateBenefitsDto } from './dto/validate-benefits.dto';
-import { ProposalService } from './proposal.service';
+import { CreateProposalDto } from '../dto/create-proposal.dto';
+import { ValidateBenefitsDto } from '../dto/validate-benefits.dto';
+import { ProposalService } from '../services/proposal.service';
 
 @Controller('proposals')
 export class ProposalController {
