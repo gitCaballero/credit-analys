@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { ProposalModule } from './interfaces/http/proposal.module';
+import { ProposalModule } from './bootstrap/nest/proposal.module';
 
 @Module({
   imports: [

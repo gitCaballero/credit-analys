@@ -1,6 +1,6 @@
 import { OfferEligibilityPolicy } from '../../domain/policies/offer-eligibility.policy';
 import { OutboxEventPublisher } from '../services/outbox-event.publisher';
-import { ProposalRepository } from '../ports/proposal.repository';
+import { ProposalRepository } from '../ports/outbound/proposal.repository.port';
 export declare class ValidateOfferEligibilityUseCase {
     private readonly repository;
     private readonly policy;

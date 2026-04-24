@@ -1,10 +1,10 @@
 import {
-  AiAssistantAdapter,
+  AiAssistantPort,
   AiAssistantRequest,
   AiAssistantResponse,
-} from '../../application/ports/ai-assistant.adapter';
+} from '../../application/ports/outbound/ai-assistant.port';
 
-export class FakeAiAssistantAdapter implements AiAssistantAdapter {
+export class FakeAiAssistantAdapter implements AiAssistantPort {
   async generateProposalExplanation(
     request: AiAssistantRequest,
   ): Promise<AiAssistantResponse> {

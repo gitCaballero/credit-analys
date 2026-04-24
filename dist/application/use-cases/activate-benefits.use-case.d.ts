@@ -1,13 +1,13 @@
 import { BenefitType } from '../../domain/enums/benefit-type.enum';
-import { BenefitsAdapter } from '../ports/benefits.adapter';
-import { ProposalRepository } from '../ports/proposal.repository';
+import { BenefitsPort } from '../ports/outbound/benefits.port';
+import { ProposalRepository } from '../ports/outbound/proposal.repository.port';
 import { OutboxEventPublisher } from '../services/outbox-event.publisher';
 import { BenefitActivationStatus } from '../../domain/enums/benefit-activation-status.enum';
 export declare class ActivateBenefitsUseCase {
     private readonly repository;
-    private readonly adapter;
+    private readonly benefitsPort;
     private readonly outboxPublisher;
-    constructor(repository: ProposalRepository, adapter: BenefitsAdapter, outboxPublisher: OutboxEventPublisher);
+    constructor(repository: ProposalRepository, benefitsPort: BenefitsPort, outboxPublisher: OutboxEventPublisher);
     execute(proposalId: string): Promise<{
         proposalId: string;
         cardId: string | undefined;

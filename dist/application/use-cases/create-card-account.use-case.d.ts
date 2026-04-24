@@ -1,11 +1,11 @@
-import { CardAccountAdapter } from '../ports/card-account.adapter';
-import { ProposalRepository } from '../ports/proposal.repository';
+import { CardAccountPort } from '../ports/outbound/card-account.port';
+import { ProposalRepository } from '../ports/outbound/proposal.repository.port';
 import { OutboxEventPublisher } from '../services/outbox-event.publisher';
 export declare class CreateCardAccountUseCase {
     private readonly repository;
-    private readonly adapter;
+    private readonly cardAccountPort;
     private readonly outboxPublisher;
-    constructor(repository: ProposalRepository, adapter: CardAccountAdapter, outboxPublisher: OutboxEventPublisher);
+    constructor(repository: ProposalRepository, cardAccountPort: CardAccountPort, outboxPublisher: OutboxEventPublisher);
     execute(proposalId: string): Promise<{
         cardId: string | undefined;
         status: import("../../domain/enums/card-creation-status.enum").CardCreationStatus.CREATED;

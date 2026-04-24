@@ -1,13 +1,15 @@
 import { CreateProposalUseCase } from './create-proposal.use-case';
 import { GetProposalStatusUseCase } from './get-proposal-status.use-case';
+import { ListProposalsUseCase } from './list-proposals.use-case';
 import { ValidateOfferEligibilityUseCase } from './validate-offer-eligibility.use-case';
 import { ValidateBenefitSelectionUseCase } from './validate-benefits.use-case';
 import { SubmitProposalUseCase } from './submit-proposal.use-case';
 import { CreateCardAccountUseCase } from './create-card-account.use-case';
 import { ActivateBenefitsUseCase } from './activate-benefits.use-case';
 import { GenerateProposalExplanationUseCase } from './generate-proposal-explanation.use-case';
-import { ChatAssistantModelAdapter, ChatAssistantRequest, ChatAssistantResponse } from '../ports/chat-assistant.adapter';
-export declare class ChatAssistantUseCase {
+import { AssistantWorkflowPort } from '../ports/inbound/assistant-workflow.port';
+import { AssistantAudience, ChatAssistantModelPort, ChatAssistantRequest, ChatAssistantResponse } from '../ports/outbound/chat-assistant-model.port';
+export declare class ChatAssistantUseCase implements AssistantWorkflowPort {
     private readonly createProposalUseCase;
     private readonly validateOfferEligibilityUseCase;
     private readonly validateBenefitSelectionUseCase;
@@ -15,11 +17,14 @@ export declare class ChatAssistantUseCase {
     private readonly createCardAccountUseCase;
     private readonly activateBenefitsUseCase;
     private readonly getProposalStatusUseCase;
+    private readonly listProposalsUseCase;
     private readonly generateProposalExplanationUseCase;
-    private readonly modelAdapter;
-    constructor(createProposalUseCase: CreateProposalUseCase, validateOfferEligibilityUseCase: ValidateOfferEligibilityUseCase, validateBenefitSelectionUseCase: ValidateBenefitSelectionUseCase, submitProposalUseCase: SubmitProposalUseCase, createCardAccountUseCase: CreateCardAccountUseCase, activateBenefitsUseCase: ActivateBenefitsUseCase, getProposalStatusUseCase: GetProposalStatusUseCase, generateProposalExplanationUseCase: GenerateProposalExplanationUseCase, modelAdapter: ChatAssistantModelAdapter);
+    private readonly chatAssistantModelPort;
+    constructor(createProposalUseCase: CreateProposalUseCase, validateOfferEligibilityUseCase: ValidateOfferEligibilityUseCase, validateBenefitSelectionUseCase: ValidateBenefitSelectionUseCase, submitProposalUseCase: SubmitProposalUseCase, createCardAccountUseCase: CreateCardAccountUseCase, activateBenefitsUseCase: ActivateBenefitsUseCase, getProposalStatusUseCase: GetProposalStatusUseCase, listProposalsUseCase: ListProposalsUseCase, generateProposalExplanationUseCase: GenerateProposalExplanationUseCase, chatAssistantModelPort: ChatAssistantModelPort);
     execute(request: ChatAssistantRequest): Promise<ChatAssistantResponse>;
-    executeTool(toolName: string, parameters: Record<string, unknown>): Promise<ChatAssistantResponse>;
+    executeTool(toolName: string, parameters: Record<string, unknown>, audience?: AssistantAudience): Promise<ChatAssistantResponse>;
+    private getAvailableTools;
+    private getUnavailableToolMessage;
     private invokeTool;
     private handleCreateProposal;
     private handleCheckStatus;
@@ -29,4 +34,6 @@ export declare class ChatAssistantUseCase {
     private handleCreateCardAccount;
     private handleActivateBenefits;
     private handleExplainProposal;
+    private handleListProposals;
+    private toCreateProposalResponse;
 }

@@ -1,7 +1,8 @@
 import { BenefitType } from '../../domain/enums/benefit-type.enum';
+import { ProposalStatus } from '../../domain/enums/proposal-status.enum';
 import { BenefitEligibilityPolicy } from '../../domain/policies/benefit-eligibility.policy';
 import { OutboxEventPublisher } from '../services/outbox-event.publisher';
-import { ProposalRepository } from '../ports/proposal.repository';
+import { ProposalRepository } from '../ports/outbound/proposal.repository.port';
 
 export class ValidateBenefitSelectionUseCase {
   constructor(
@@ -19,6 +20,10 @@ export class ValidateBenefitSelectionUseCase {
     const proposal = await this.repository.findById(proposalId);
     if (!proposal) {
       throw new Error(`Proposal ${proposalId} not found`);
+    }
+
+    if (proposal.status !== ProposalStatus.OFFER_VALIDATED) {
+      throw new Error('Proposal must complete offer validation before benefits validation');
     }
 
     proposal.updateSelectedBenefits(selectedBenefits);

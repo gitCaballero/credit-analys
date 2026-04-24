@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { AiAssistantResponse } from '../ports/ai-assistant.adapter';
+import { AiAssistantResponse } from '../ports/outbound/ai-assistant.port';
 import { AiAssistantService } from '../services/ai-assistant.service';
-import { ProposalRepository } from '../ports/proposal.repository';
+import { ProposalRepository } from '../ports/outbound/proposal.repository.port';
 
 @Injectable()
 export class GenerateProposalExplanationUseCase {

@@ -1,0 +1,50 @@
+sequenceDiagram
+  autonumber
+  actor Cliente
+  actor Especialista as Especialista de credito
+  participant ClientAssistant as /assistant/customer/message
+  participant SpecialistAssistant as /assistant/specialist/message
+  participant ProposalAPI as /proposals endpoints
+  participant Domain as Use cases + dominio
+  participant Repo as Repositorio
+
+  Note over Cliente,Repo: Vista unificada to-be de los tres flujos
+
+  rect rgb(235, 245, 255)
+    Note over Cliente,Repo: Flujo 1 - Cliente con asistente o fallback dedicado
+    Cliente->>ClientAssistant: Solicita tarjeta o consulta estado
+    ClientAssistant->>Domain: create_proposal o check_status
+    Domain->>Repo: persiste/consulta propuesta
+    Repo-->>Domain: datos
+    Domain-->>ClientAssistant: propuesta creada o estado actual
+    ClientAssistant-->>Cliente: proposalId, beneficios elegidos y estado
+  end
+
+  rect rgb(245, 255, 235)
+    Note over Especialista,Repo: Flujo 2 - Especialista con asistente o fallback dedicado
+    Especialista->>SpecialistAssistant: Validar oferta, beneficios, submit, crear tarjeta, activar beneficios
+    SpecialistAssistant->>Domain: validate_offer / validate_benefits / submit / create_card_account / activate_benefits
+    Domain->>Repo: consulta y actualiza propuesta
+    Repo-->>Domain: datos actualizados
+    Domain-->>SpecialistAssistant: resultado operativo
+    SpecialistAssistant-->>Especialista: aprobacion, rechazo o pendiente tecnico
+  end
+
+  rect rgb(255, 245, 235)
+    Note over Cliente,Repo: Flujo 3 - Sin asistente, operacion directa por servicios
+    Cliente->>ProposalAPI: POST /proposals o GET /status
+    ProposalAPI->>Domain: createProposal / getProposalStatus
+    Domain->>Repo: save/find
+    Repo-->>Domain: datos
+    Domain-->>ProposalAPI: respuesta
+    ProposalAPI-->>Cliente: proposalId o estado
+
+    Especialista->>ProposalAPI: offer-validation / benefits-validation / submit / card-creation / benefits-activation
+    ProposalAPI->>Domain: ejecuta caso de uso correspondiente
+    Domain->>Repo: consulta y persiste cambios
+    Repo-->>Domain: datos actualizados
+    Domain-->>ProposalAPI: resultado
+    ProposalAPI-->>Especialista: resultado de aprobacion o procesamiento
+  end
+
+  Note over Cliente,Repo: En los tres flujos la consulta final debe exponer status, cardCreationStatus, cardId y benefitActivationStatus

@@ -1,7 +1,34 @@
 import OpenAI from 'openai';
-import { ChatAssistantModelAdapter, ChatAssistantModelRequest, ChatAssistantModelResponse } from '../../application/ports/chat-assistant.adapter';
+import {
+  ChatAssistantModelPort,
+  ChatAssistantModelRequest,
+  ChatAssistantModelResponse,
+} from '../../application/ports/outbound/chat-assistant-model.port';
+import { maskEmail, maskNationalId } from '../../shared/security/pii.util';
 
-export class OpenAiChatModelAdapter implements ChatAssistantModelAdapter {
+function sanitizeParameters(parameters?: Record<string, unknown>) {
+  if (!parameters) {
+    return parameters;
+  }
+
+  const cloned = JSON.parse(JSON.stringify(parameters)) as Record<string, unknown>;
+  const customerProfile = cloned.customerProfile as Record<string, unknown> | undefined;
+  if (customerProfile) {
+    if (typeof customerProfile.fullName === 'string') {
+      customerProfile.fullName = `${customerProfile.fullName.charAt(0)}***`;
+    }
+    if (typeof customerProfile.nationalId === 'string') {
+      customerProfile.nationalId = maskNationalId(customerProfile.nationalId);
+    }
+    if (typeof customerProfile.email === 'string') {
+      customerProfile.email = maskEmail(customerProfile.email);
+    }
+  }
+
+  return cloned;
+}
+
+export class OpenAiChatModelAdapter implements ChatAssistantModelPort {
   private readonly client: OpenAI;
 
   constructor() {
@@ -9,6 +36,7 @@ export class OpenAiChatModelAdapter implements ChatAssistantModelAdapter {
   }
 
   async interpretIntent(request: ChatAssistantModelRequest): Promise<ChatAssistantModelResponse> {
+    const sanitizedParameters = sanitizeParameters(request.parameters);
     const toolDescriptions = request.availableTools
       .map(
         (tool) => `- ${tool.name}: ${tool.description} Parâmetros requeridos: ${tool.requiredParameters.join(', ')}`,
@@ -24,9 +52,10 @@ Solicitação do usuário:
 ${request.userMessage}
 
 Contexto adicional:
+${request.audience ? `audience=${request.audience}` : 'audience=general'}
 ${request.proposalId ? `proposalId=${request.proposalId}` : 'sem proposalId'}
-${request.parameters ? `
-Parâmetros adicionais: ${JSON.stringify(request.parameters)}` : ''}
+${sanitizedParameters ? `
+Parâmetros adicionais: ${JSON.stringify(sanitizedParameters)}` : ''}
 
 Exemplo de resposta válida:
 {"toolName":"check_status","toolInput":{"proposalId":"ABC123"},"assistantMessage":"Consulto o status da sua proposta."}`;

@@ -3,22 +3,26 @@ import { BenefitType } from '../../domain/enums/benefit-type.enum';
 import { OfferType } from '../../domain/enums/offer-type.enum';
 import { CreateProposalCommand, CreateProposalUseCase } from './create-proposal.use-case';
 import { GetProposalStatusUseCase } from './get-proposal-status.use-case';
+import { ListProposalsUseCase } from './list-proposals.use-case';
 import { ValidateOfferEligibilityUseCase } from './validate-offer-eligibility.use-case';
 import { ValidateBenefitSelectionUseCase } from './validate-benefits.use-case';
 import { SubmitProposalUseCase } from './submit-proposal.use-case';
 import { CreateCardAccountUseCase } from './create-card-account.use-case';
 import { ActivateBenefitsUseCase } from './activate-benefits.use-case';
 import { GenerateProposalExplanationUseCase } from './generate-proposal-explanation.use-case';
+import { CreditCardProposal } from '../../domain/entities/credit-card-proposal.entity';
+import { maskEmail, maskNationalId } from '../../shared/security/pii.util';
+import { AssistantWorkflowPort } from '../ports/inbound/assistant-workflow.port';
 import {
-  ChatAssistantModelAdapter,
+  AssistantAudience,
+  ChatAssistantModelPort,
   ChatAssistantModelRequest,
-  ChatAssistantModelResponse,
   ChatAssistantRequest,
   ChatAssistantResponse,
   ChatToolDescriptor,
-} from '../ports/chat-assistant.adapter';
+} from '../ports/outbound/chat-assistant-model.port';
 
-const TOOL_DESCRIPTORS: ChatToolDescriptor[] = [
+const GENERAL_TOOL_DESCRIPTORS: ChatToolDescriptor[] = [
   {
     name: 'create_proposal',
     description: 'Solicitar um novo crédito com perfil do cliente, tipo de oferta e benefícios selecionados.',
@@ -28,6 +32,11 @@ const TOOL_DESCRIPTORS: ChatToolDescriptor[] = [
     name: 'check_status',
     description: 'Consultar o status atual de uma proposta de crédito.',
     requiredParameters: ['proposalId'],
+  },
+  {
+    name: 'list_proposals',
+    description: 'Consultar o resumo de todas as propostas para acompanhamento operacional.',
+    requiredParameters: [],
   },
   {
     name: 'validate_offer',
@@ -61,8 +70,25 @@ const TOOL_DESCRIPTORS: ChatToolDescriptor[] = [
   },
 ];
 
+const CUSTOMER_TOOL_DESCRIPTORS: ChatToolDescriptor[] = GENERAL_TOOL_DESCRIPTORS.filter((tool) =>
+  ['create_proposal', 'check_status', 'explain_proposal'].includes(tool.name),
+);
+
+const CREDIT_SPECIALIST_TOOL_DESCRIPTORS: ChatToolDescriptor[] = GENERAL_TOOL_DESCRIPTORS.filter((tool) =>
+  [
+    'check_status',
+    'list_proposals',
+    'validate_offer',
+    'validate_benefits',
+    'submit_proposal',
+    'create_card_account',
+    'activate_benefits',
+    'explain_proposal',
+  ].includes(tool.name),
+);
+
 @Injectable()
-export class ChatAssistantUseCase {
+export class ChatAssistantUseCase implements AssistantWorkflowPort {
   constructor(
     private readonly createProposalUseCase: CreateProposalUseCase,
     private readonly validateOfferEligibilityUseCase: ValidateOfferEligibilityUseCase,
@@ -71,23 +97,34 @@ export class ChatAssistantUseCase {
     private readonly createCardAccountUseCase: CreateCardAccountUseCase,
     private readonly activateBenefitsUseCase: ActivateBenefitsUseCase,
     private readonly getProposalStatusUseCase: GetProposalStatusUseCase,
+    private readonly listProposalsUseCase: ListProposalsUseCase,
     private readonly generateProposalExplanationUseCase: GenerateProposalExplanationUseCase,
-    @Inject('ChatAssistantModelAdapter')
-    private readonly modelAdapter: ChatAssistantModelAdapter,
+    @Inject('ChatAssistantModelPort')
+    private readonly chatAssistantModelPort: ChatAssistantModelPort,
   ) {}
 
   async execute(request: ChatAssistantRequest): Promise<ChatAssistantResponse> {
+    const audience = request.audience ?? 'general';
+    const availableTools = this.getAvailableTools(audience);
     const modelRequest: ChatAssistantModelRequest = {
       userMessage: request.userMessage,
       proposalId: request.proposalId,
-      availableTools: TOOL_DESCRIPTORS,
+      availableTools,
       parameters: request.parameters,
+      audience,
     };
 
-    const interpreted = await this.modelAdapter.interpretIntent(modelRequest);
+    const interpreted = await this.chatAssistantModelPort.interpretIntent(modelRequest);
     if (!interpreted.toolName || interpreted.toolName === 'none') {
       return {
         message: interpreted.assistantMessage,
+        source: 'chat-model',
+      };
+    }
+
+    if (!availableTools.some((tool) => tool.name === interpreted.toolName)) {
+      return {
+        message: this.getUnavailableToolMessage(audience, interpreted.toolName),
         source: 'chat-model',
       };
     }
@@ -125,7 +162,19 @@ export class ChatAssistantUseCase {
     }
   }
 
-  async executeTool(toolName: string, parameters: Record<string, unknown>): Promise<ChatAssistantResponse> {
+  async executeTool(
+    toolName: string,
+    parameters: Record<string, unknown>,
+    audience: AssistantAudience = 'credit_specialist',
+  ): Promise<ChatAssistantResponse> {
+    const availableTools = this.getAvailableTools(audience);
+    if (!availableTools.some((tool) => tool.name === toolName)) {
+      return {
+        message: this.getUnavailableToolMessage(audience, toolName),
+        source: 'cli',
+      };
+    }
+
     try {
       const toolResult = await this.invokeTool(toolName, parameters, parameters.proposalId as string | undefined, parameters);
       return {
@@ -146,6 +195,27 @@ export class ChatAssistantUseCase {
     }
   }
 
+  private getAvailableTools(audience: AssistantAudience): ChatToolDescriptor[] {
+    switch (audience) {
+      case 'customer':
+        return CUSTOMER_TOOL_DESCRIPTORS;
+      case 'credit_specialist':
+        return CREDIT_SPECIALIST_TOOL_DESCRIPTORS;
+      default:
+        return GENERAL_TOOL_DESCRIPTORS;
+    }
+  }
+
+  private getUnavailableToolMessage(audience: AssistantAudience, toolName: string): string {
+    if (audience === 'customer') {
+      return `A ação ${toolName} não está disponível no assistente do cliente. Posso ajudar com a criação da proposta, seleção de benefícios e consulta de status.`;
+    }
+    if (audience === 'credit_specialist') {
+      return `A ação ${toolName} não está disponível neste fluxo do especialista. Posso ajudar com validação, envio, criação do cartão, ativação de benefícios e consulta de status.`;
+    }
+    return `A ação ${toolName} não está disponível neste contexto.`;
+  }
+
   private async invokeTool(
     toolName: string,
     toolInput: Record<string, unknown>,
@@ -158,6 +228,8 @@ export class ChatAssistantUseCase {
         return this.handleCreateProposal(toolInput, requestParameters);
       case 'check_status':
         return this.handleCheckStatus(proposalId);
+      case 'list_proposals':
+        return this.handleListProposals();
       case 'validate_offer':
         return this.handleValidateOffer(proposalId);
       case 'validate_benefits':
@@ -237,7 +309,7 @@ export class ChatAssistantUseCase {
     const result = await this.createProposalUseCase.execute(command);
     return {
       message: `Proposta criada com ID ${result.proposalId}. Continue com a validação da oferta ou dos benefícios conforme preferir.`,
-      data: result,
+      data: this.toCreateProposalResponse(result),
     };
   }
 
@@ -370,6 +442,45 @@ export class ChatAssistantUseCase {
     return {
       message: result.explanation,
       data: result,
+    };
+  }
+
+  private async handleListProposals() {
+    const result = await this.listProposalsUseCase.execute();
+    return {
+      message: result.length > 0
+        ? `Encontrei ${result.length} propostas para acompanhamento.`
+        : 'Não encontrei propostas cadastradas.',
+      data: result.map((proposal) => ({
+        ...proposal,
+        customerProfile: {
+          ...proposal.customerProfile,
+          nationalId: maskNationalId(proposal.customerProfile.nationalId),
+          email: maskEmail(proposal.customerProfile.email),
+        },
+      })),
+    };
+  }
+
+  private toCreateProposalResponse(proposal: CreditCardProposal) {
+    return {
+      proposalId: proposal.proposalId,
+      customerProfile: {
+        fullName: proposal.customerProfile.fullName,
+        nationalId: maskNationalId(proposal.customerProfile.nationalId),
+        income: proposal.customerProfile.income,
+        investments: proposal.customerProfile.investments,
+        currentAccountYears: proposal.customerProfile.currentAccountYears,
+        email: maskEmail(proposal.customerProfile.email),
+      },
+      offerType: proposal.offerType,
+      selectedBenefits: proposal.selectedBenefits.benefits,
+      benefitActivationStatus: proposal.benefitActivationStatus,
+      auditEntries: proposal.auditEntries,
+      status: proposal.status,
+      cardCreationStatus: proposal.cardCreationStatus,
+      rejectionReason: proposal.rejectionReason,
+      cardId: proposal.cardId,
     };
   }
 }

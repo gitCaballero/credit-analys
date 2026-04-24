@@ -1,5 +1,5 @@
 import { CreditCardProposal } from '../../domain/entities/credit-card-proposal.entity';
-import { ProposalRepository } from '../../application/ports/proposal.repository';
+import { ProposalRepository } from '../../application/ports/outbound/proposal.repository.port';
 
 export class InMemoryProposalRepository implements ProposalRepository {
   private readonly store: Map<string, CreditCardProposal> = new Map();
@@ -10,5 +10,9 @@ export class InMemoryProposalRepository implements ProposalRepository {
 
   async findById(proposalId: string): Promise<CreditCardProposal | null> {
     return this.store.get(proposalId) ?? null;
+  }
+
+  async findAll(): Promise<CreditCardProposal[]> {
+    return Array.from(this.store.values());
   }
 }

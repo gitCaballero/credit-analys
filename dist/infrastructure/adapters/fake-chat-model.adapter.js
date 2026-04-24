@@ -58,6 +58,7 @@ class FakeChatModelAdapter {
             parseProposalId(userMessage);
         const hasHelpIntent = /opciones|opcoes|opções|menu|ajuda|ayuda|que puedes hacer|qué puedes hacer|help|mostrar opciones/i.test(message);
         const hasCreateIntent = /solicitar.*cr[eé]dito|crear.*cr[eé]dito|quiero.*cr[eé]dito|aplicar.*cr[eé]dito|solicitar.*cr[ée]dito|cri(ar|ar).*cr[ée]dito|quero.*cr[ée]dito|aplicar.*cr[ée]dito|quero.*cart[oó]o/i.test(userMessage);
+        const hasListIntent = /todas las propuestas|todas as propostas|listar propostas|listar propuestas|lista de propostas|lista de propuestas/i.test(message);
         const hasStatusIntent = /estado|status|situaci[oó]n|situa[cç][aã]o|consulta.*propuesta|consulta.*proposta/i.test(message);
         const hasValidateOfferIntent = /validar.*oferta|elegibilidad|oferta.*válida|oferta.*válida|validar.*oferta|elegibilidade/i.test(message);
         const hasValidateBenefitsIntent = /(?:validar|validación|validacíon).*beneficios|beneficios.*(?:validar|validación|validacíon)|validar.*benef[ií]cios|benef[ií]cios.*validar/i.test(message);
@@ -91,6 +92,13 @@ class FakeChatModelAdapter {
                     selectedBenefits,
                 },
                 assistantMessage: 'Perfeito, vamos iniciar a solicitação de crédito. Vou pedir os dados necessários um por um.',
+            };
+        }
+        if (hasListIntent) {
+            return {
+                toolName: 'list_proposals',
+                toolInput: {},
+                assistantMessage: 'Consultando o resumo das propostas cadastradas.',
             };
         }
         if (hasStatusIntent) {

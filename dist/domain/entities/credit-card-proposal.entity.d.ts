@@ -40,6 +40,7 @@ export declare class CreditCardProposal {
     rejectionReason?: string;
     /** Identificador do cartão atribuído quando a conta é criada. */
     cardId?: string;
+    private assertStatus;
     /**
      * Registra uma nova entrada de auditoria para esta proposta.
      */

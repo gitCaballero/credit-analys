@@ -1,5 +1,5 @@
-import { ChatAssistantModelAdapter, ChatAssistantModelRequest, ChatAssistantModelResponse } from '../../application/ports/chat-assistant.adapter';
-export declare class OpenAiChatModelAdapter implements ChatAssistantModelAdapter {
+import { ChatAssistantModelPort, ChatAssistantModelRequest, ChatAssistantModelResponse } from '../../application/ports/outbound/chat-assistant-model.port';
+export declare class OpenAiChatModelAdapter implements ChatAssistantModelPort {
     private readonly client;
     constructor();
     interpretIntent(request: ChatAssistantModelRequest): Promise<ChatAssistantModelResponse>;

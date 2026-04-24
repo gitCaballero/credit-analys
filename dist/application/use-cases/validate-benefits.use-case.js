@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ValidateBenefitSelectionUseCase = void 0;
+const proposal_status_enum_1 = require("../../domain/enums/proposal-status.enum");
 class ValidateBenefitSelectionUseCase {
     constructor(repository, policy, outboxPublisher) {
         this.repository = repository;
@@ -11,6 +12,9 @@ class ValidateBenefitSelectionUseCase {
         const proposal = await this.repository.findById(proposalId);
         if (!proposal) {
             throw new Error(`Proposal ${proposalId} not found`);
+        }
+        if (proposal.status !== proposal_status_enum_1.ProposalStatus.OFFER_VALIDATED) {
+            throw new Error('Proposal must complete offer validation before benefits validation');
         }
         proposal.updateSelectedBenefits(selectedBenefits);
         const result = this.policy.evaluate(proposal.offerType, proposal.selectedBenefits.benefits);

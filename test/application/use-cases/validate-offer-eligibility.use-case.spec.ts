@@ -74,4 +74,26 @@ describe('ValidateOfferEligibilityUseCase', () => {
     expect(result.reasons).toContain('Customer is not eligible for selected offer C');
     expect(updatedProposal?.status).toBe(ProposalStatus.REJECTED);
   });
+
+  it('rejects offer validation when proposal is no longer in RECEIVED', async () => {
+    const proposal = await createProposalUseCase.execute({
+      proposalId: 'proposal-offer-3',
+      customerProfile: {
+        fullName: 'Lia Doe',
+        nationalId: '55554444',
+        income: 25000,
+        investments: 9000,
+        currentAccountYears: 4,
+        email: 'lia@example.com',
+      },
+      offerType: 'B' as any,
+      selectedBenefits: [],
+    });
+    proposal.markOfferValidated();
+    await repository.save(proposal);
+
+    await expect(useCase.execute('proposal-offer-3')).rejects.toThrow(
+      'Proposal must be in RECEIVED status before offer validation',
+    );
+  });
 });

@@ -8,7 +8,7 @@ import { BenefitType } from '../../domain/enums/benefit-type.enum';
 import { CardCreationStatus } from '../../domain/enums/card-creation-status.enum';
 import { OfferType } from '../../domain/enums/offer-type.enum';
 import { ProposalStatus } from '../../domain/enums/proposal-status.enum';
-import { ProposalRepository } from '../../application/ports/proposal.repository';
+import { ProposalRepository } from '../../application/ports/outbound/proposal.repository.port';
 import { ProposalEntity } from '../typeorm/entities/proposal.entity';
 
 @Injectable()
@@ -98,5 +98,15 @@ export class TypeormProposalRepository implements ProposalRepository {
   async findById(proposalId: string): Promise<CreditCardProposal | null> {
     const entity = await this.repository.findOne({ where: { proposalId } });
     return entity ? this.toDomain(entity) : null;
+  }
+
+  async findAll(): Promise<CreditCardProposal[]> {
+    const entities = await this.repository.find({
+      order: {
+        updatedAt: 'DESC',
+      },
+    });
+
+    return entities.map((entity) => this.toDomain(entity));
   }
 }

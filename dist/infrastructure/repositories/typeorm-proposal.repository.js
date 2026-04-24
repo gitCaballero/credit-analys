@@ -81,6 +81,14 @@ let TypeormProposalRepository = class TypeormProposalRepository {
         const entity = await this.repository.findOne({ where: { proposalId } });
         return entity ? this.toDomain(entity) : null;
     }
+    async findAll() {
+        const entities = await this.repository.find({
+            order: {
+                updatedAt: 'DESC',
+            },
+        });
+        return entities.map((entity) => this.toDomain(entity));
+    }
 };
 exports.TypeormProposalRepository = TypeormProposalRepository;
 exports.TypeormProposalRepository = TypeormProposalRepository = __decorate([

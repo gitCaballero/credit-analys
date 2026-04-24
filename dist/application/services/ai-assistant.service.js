@@ -15,16 +15,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AiAssistantService = void 0;
 const common_1 = require("@nestjs/common");
 let AiAssistantService = class AiAssistantService {
-    constructor(adapter) {
-        this.adapter = adapter;
+    constructor(aiAssistantPort) {
+        this.aiAssistantPort = aiAssistantPort;
     }
     async explainProposal(request) {
-        return this.adapter.generateProposalExplanation(request);
+        return this.aiAssistantPort.generateProposalExplanation(request);
     }
 };
 exports.AiAssistantService = AiAssistantService;
 exports.AiAssistantService = AiAssistantService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, common_1.Inject)('AiAssistantAdapter')),
+    __param(0, (0, common_1.Inject)('AiAssistantPort')),
     __metadata("design:paramtypes", [Object])
 ], AiAssistantService);

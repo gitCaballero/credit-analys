@@ -1,7 +1,7 @@
 import { BenefitType } from '../../domain/enums/benefit-type.enum';
 import { BenefitEligibilityPolicy } from '../../domain/policies/benefit-eligibility.policy';
 import { OutboxEventPublisher } from '../services/outbox-event.publisher';
-import { ProposalRepository } from '../ports/proposal.repository';
+import { ProposalRepository } from '../ports/outbound/proposal.repository.port';
 export declare class ValidateBenefitSelectionUseCase {
     private readonly repository;
     private readonly policy;

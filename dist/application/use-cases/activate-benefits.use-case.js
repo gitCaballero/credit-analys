@@ -5,9 +5,9 @@ const benefit_activation_status_enum_1 = require("../../domain/enums/benefit-act
 const card_creation_status_enum_1 = require("../../domain/enums/card-creation-status.enum");
 const proposal_status_enum_1 = require("../../domain/enums/proposal-status.enum");
 class ActivateBenefitsUseCase {
-    constructor(repository, adapter, outboxPublisher) {
+    constructor(repository, benefitsPort, outboxPublisher) {
         this.repository = repository;
-        this.adapter = adapter;
+        this.benefitsPort = benefitsPort;
         this.outboxPublisher = outboxPublisher;
     }
     async execute(proposalId) {
@@ -15,11 +15,14 @@ class ActivateBenefitsUseCase {
         if (!proposal) {
             throw new Error(`Proposal ${proposalId} not found`);
         }
+        if (proposal.status !== proposal_status_enum_1.ProposalStatus.CARD_ACCOUNT_CREATED) {
+            throw new Error('Proposal must have a created card account before benefits activation');
+        }
         if (proposal.cardCreationStatus !== card_creation_status_enum_1.CardCreationStatus.CREATED) {
             throw new Error('Card account must be created before benefits activation');
         }
         const activationResults = await Promise.all(proposal.selectedBenefits.benefits.map(async (benefit) => {
-            const result = await this.adapter.activateBenefit({
+            const result = await this.benefitsPort.activateBenefit({
                 proposalId: proposal.proposalId,
                 cardId: proposal.cardId,
                 benefit,
@@ -49,7 +52,7 @@ class ActivateBenefitsUseCase {
             proposalId: proposal.proposalId,
             cardId: proposal.cardId,
             statuses: proposal.benefitActivationStatus,
-            completed: proposal.status === proposal_status_enum_1.ProposalStatus.COMPLETED,
+            completed: allActivated,
         };
     }
 }

@@ -2,7 +2,10 @@ import { CreateProposalUseCase } from '../../../src/application/use-cases/create
 import { ActivateBenefitsUseCase } from '../../../src/application/use-cases/activate-benefits.use-case';
 import { InMemoryProposalRepository } from '../../../src/infrastructure/repositories/in-memory-proposal.repository';
 import { OutboxEventPublisher } from '../../../src/application/services/outbox-event.publisher';
-import { BenefitsAdapter, BenefitActivationResponse } from '../../../src/application/ports/benefits.adapter';
+import {
+  BenefitActivationResponse,
+  BenefitsPort,
+} from '../../../src/application/ports/outbound/benefits.port';
 import { BenefitType } from '../../../src/domain/enums/benefit-type.enum';
 import { BenefitActivationStatus } from '../../../src/domain/enums/benefit-activation-status.enum';
 import { CardCreationStatus } from '../../../src/domain/enums/card-creation-status.enum';
@@ -16,7 +19,7 @@ class DummyPublisher extends OutboxEventPublisher {
   }
 }
 
-class StubBenefitsAdapter implements BenefitsAdapter {
+class StubBenefitsAdapter implements BenefitsPort {
   constructor(private readonly responses: Record<string, BenefitActivationResponse>) {}
 
   async activateBenefit(payload: { proposalId: string; cardId: string; benefit: BenefitType }) {
@@ -51,6 +54,7 @@ describe('ActivateBenefitsUseCase', () => {
     proposal.markOfferValidated();
     proposal.markBenefitsValidated();
     proposal.markSubmitted();
+    proposal.markCardCreationRequested();
     proposal.markCardCreated('CARD-proposal-activation-1');
     await repository.save(proposal);
 
@@ -89,6 +93,7 @@ describe('ActivateBenefitsUseCase', () => {
     proposal.markOfferValidated();
     proposal.markBenefitsValidated();
     proposal.markSubmitted();
+    proposal.markCardCreationRequested();
     proposal.markCardCreated('CARD-proposal-activation-2');
     await repository.save(proposal);
 
@@ -113,5 +118,38 @@ describe('ActivateBenefitsUseCase', () => {
     expect(result.statuses[BenefitType.TRAVEL_INSURANCE]).toBe(BenefitActivationStatus.FAILED);
     expect(updatedProposal?.status).toBe(ProposalStatus.CARD_ACCOUNT_CREATED);
     expect(updatedProposal?.cardCreationStatus).toBe(CardCreationStatus.CREATED);
+  });
+
+  it('rejects activation when card status is not fully created', async () => {
+    const proposal = await createProposalUseCase.execute({
+      proposalId: 'proposal-activation-3',
+      customerProfile: {
+        fullName: 'Kai Doe',
+        nationalId: '12121212',
+        income: 9000,
+        investments: 800,
+        currentAccountYears: 2,
+        email: 'kai@example.com',
+      },
+      offerType: 'A' as any,
+      selectedBenefits: [BenefitType.CASHBACK],
+    });
+
+    proposal.markOfferValidated();
+    proposal.markBenefitsValidated();
+    proposal.markSubmitted();
+    await repository.save(proposal);
+
+    const useCase = new ActivateBenefitsUseCase(
+      repository,
+      new StubBenefitsAdapter({
+        [BenefitType.CASHBACK]: { success: true, benefit: BenefitType.CASHBACK },
+      }),
+      publisher as any,
+    );
+
+    await expect(useCase.execute('proposal-activation-3')).rejects.toThrow(
+      'Proposal must have a created card account before benefits activation',
+    );
   });
 });

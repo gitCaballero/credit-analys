@@ -47,4 +47,32 @@ describe('CreateCardAccountUseCase', () => {
     expect(updatedProposal?.status).toBe(ProposalStatus.CARD_ACCOUNT_CREATED);
     expect(publisher.events.some((event) => event.eventType === 'card.created')).toBe(true);
   });
+
+  it('allows retry after a technical card creation failure', async () => {
+    const proposal = await createProposalUseCase.execute({
+      proposalId: 'proposal-3',
+      customerProfile: {
+        fullName: 'Retry Doe',
+        nationalId: '11110000',
+        income: 18000,
+        investments: 7000,
+        currentAccountYears: 5,
+        email: 'retry@example.com',
+      },
+      offerType: 'B' as any,
+      selectedBenefits: [],
+    });
+    proposal.markOfferValidated();
+    proposal.markBenefitsValidated();
+    proposal.markSubmitted();
+    proposal.markCardCreationRequested();
+    proposal.markCardCreationFailed('Downstream timeout');
+    await repository.save(proposal);
+
+    const result = await createCardAccountUseCase.execute('proposal-3');
+    const updatedProposal = await repository.findById('proposal-3');
+
+    expect(result.status).toBe('CREATED');
+    expect(updatedProposal?.status).toBe(ProposalStatus.CARD_ACCOUNT_CREATED);
+  });
 });

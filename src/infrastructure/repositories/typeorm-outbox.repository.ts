@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DomainEvent } from '../../domain/events/domain-event';
 import { OutboxEventEntity } from '../typeorm/entities/outbox-event.entity';
-import { OutboxEventRepository } from '../../application/ports/outbox-event.repository';
+import { OutboxEventRepository } from '../../application/ports/outbound/outbox-event.repository.port';
 
 @Injectable()
 export class TypeormOutboxRepository implements OutboxEventRepository {

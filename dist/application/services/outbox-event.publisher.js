@@ -25,6 +25,6 @@ let OutboxEventPublisher = class OutboxEventPublisher {
 exports.OutboxEventPublisher = OutboxEventPublisher;
 exports.OutboxEventPublisher = OutboxEventPublisher = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, common_1.Inject)('OutboxEventRepository')),
+    __param(0, (0, common_1.Inject)('OutboxEventRepositoryPort')),
     __metadata("design:paramtypes", [Object])
 ], OutboxEventPublisher);

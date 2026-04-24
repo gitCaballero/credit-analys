@@ -15,6 +15,7 @@ class GetProposalStatusUseCase {
             status: proposal.status,
             cardCreationStatus: proposal.cardCreationStatus,
             selectedBenefits: proposal.selectedBenefits.benefits,
+            benefitActivationStatus: proposal.benefitActivationStatus,
             rejectionReason: proposal.rejectionReason,
             cardId: proposal.cardId,
         };

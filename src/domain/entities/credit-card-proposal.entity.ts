@@ -45,6 +45,12 @@ export class CreditCardProposal {
   /** Identificador do cartão atribuído quando a conta é criada. */
   cardId?: string;
 
+  private assertStatus(allowed: ProposalStatus[], action: string): void {
+    if (!allowed.includes(this.status)) {
+      throw new Error(`Proposal cannot ${action} while in status ${this.status}`);
+    }
+  }
+
   /**
    * Registra uma nova entrada de auditoria para esta proposta.
    */
@@ -56,6 +62,7 @@ export class CreditCardProposal {
    * Marca a proposta como tendo a oferta validada.
    */
   markOfferValidated(): void {
+    this.assertStatus([ProposalStatus.RECEIVED], 'validate offer');
     this.status = ProposalStatus.OFFER_VALIDATED;
     this.addAudit('offer.validated', `Offer ${this.offerType} validated`);
   }
@@ -64,6 +71,7 @@ export class CreditCardProposal {
    * Marca a proposta como tendo a seleção de benefícios validada.
    */
   markBenefitsValidated(): void {
+    this.assertStatus([ProposalStatus.OFFER_VALIDATED], 'validate benefits');
     this.status = ProposalStatus.BENEFITS_VALIDATED;
     this.addAudit('benefits.validated', `Benefit selection validated: ${this.selectedBenefits.benefits.join(', ')}`);
   }
@@ -72,6 +80,7 @@ export class CreditCardProposal {
    * Marca a proposta como enviada para processamento.
    */
   markSubmitted(): void {
+    this.assertStatus([ProposalStatus.BENEFITS_VALIDATED], 'submit');
     this.status = ProposalStatus.SUBMITTED;
     this.addAudit('proposal.submitted', 'Proposal submitted for processing');
   }
@@ -80,6 +89,13 @@ export class CreditCardProposal {
    * Marca a solicitação de criação do cartão como enviada.
    */
   markCardCreationRequested(): void {
+    this.assertStatus([ProposalStatus.SUBMITTED], 'request card creation');
+    if (
+      this.cardCreationStatus !== CardCreationStatus.NOT_CREATED &&
+      this.cardCreationStatus !== CardCreationStatus.FAILED
+    ) {
+      throw new Error(`Proposal cannot request card creation while card creation is ${this.cardCreationStatus}`);
+    }
     this.cardCreationStatus = CardCreationStatus.REQUESTED;
     this.addAudit('card.creation.requested', 'Card account creation requested');
   }
@@ -88,6 +104,10 @@ export class CreditCardProposal {
    * Marca o cartão como criado e salva o identificador gerado.
    */
   markCardCreated(cardId: string): void {
+    this.assertStatus([ProposalStatus.SUBMITTED], 'complete card creation');
+    if (this.cardCreationStatus !== CardCreationStatus.REQUESTED) {
+      throw new Error(`Proposal cannot complete card creation while card creation is ${this.cardCreationStatus}`);
+    }
     this.status = ProposalStatus.CARD_ACCOUNT_CREATED;
     this.cardCreationStatus = CardCreationStatus.CREATED;
     this.cardId = cardId;
@@ -98,6 +118,10 @@ export class CreditCardProposal {
    * Marca a criação do cartão como falha e registra o motivo.
    */
   markCardCreationFailed(reason: string): void {
+    this.assertStatus([ProposalStatus.SUBMITTED], 'fail card creation');
+    if (this.cardCreationStatus !== CardCreationStatus.REQUESTED) {
+      throw new Error(`Proposal cannot fail card creation while card creation is ${this.cardCreationStatus}`);
+    }
     this.cardCreationStatus = CardCreationStatus.FAILED;
     this.rejectionReason = reason;
     this.addAudit('card.creation.failed', reason);
@@ -107,6 +131,7 @@ export class CreditCardProposal {
    * Marca a proposta como totalmente concluída.
    */
   markCompleted(): void {
+    this.assertStatus([ProposalStatus.CARD_ACCOUNT_CREATED], 'complete');
     this.status = ProposalStatus.COMPLETED;
     this.addAudit('proposal.completed', 'Proposal completed');
   }
@@ -115,6 +140,10 @@ export class CreditCardProposal {
    * Marca a proposta como rejeitada com um motivo específico.
    */
   markRejected(reason: string): void {
+    this.assertStatus(
+      [ProposalStatus.RECEIVED, ProposalStatus.OFFER_VALIDATED, ProposalStatus.BENEFITS_VALIDATED],
+      'be rejected',
+    );
     this.status = ProposalStatus.REJECTED;
     this.rejectionReason = reason;
     this.addAudit('proposal.rejected', reason);
@@ -132,6 +161,7 @@ export class CreditCardProposal {
    * Atualiza a lista de benefícios selecionados e registra a mudança na auditoria.
    */
   updateSelectedBenefits(benefits: BenefitType[]): void {
+    this.assertStatus([ProposalStatus.OFFER_VALIDATED], 'update benefits');
     this.selectedBenefits = new BenefitSelection(benefits);
     this.addAudit('benefits.selection.updated', `Benefits updated to: ${benefits.join(', ')}`);
   }

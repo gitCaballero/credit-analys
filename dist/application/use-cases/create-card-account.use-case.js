@@ -3,9 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateCardAccountUseCase = void 0;
 const proposal_status_enum_1 = require("../../domain/enums/proposal-status.enum");
 class CreateCardAccountUseCase {
-    constructor(repository, adapter, outboxPublisher) {
+    constructor(repository, cardAccountPort, outboxPublisher) {
         this.repository = repository;
-        this.adapter = adapter;
+        this.cardAccountPort = cardAccountPort;
         this.outboxPublisher = outboxPublisher;
     }
     async execute(proposalId) {
@@ -32,7 +32,7 @@ class CreateCardAccountUseCase {
             },
             occurredAt: new Date().toISOString(),
         });
-        const response = await this.adapter.createCardAccount({
+        const response = await this.cardAccountPort.createCardAccount({
             proposalId: proposal.proposalId,
             fullName: proposal.customerProfile.fullName,
             nationalId: proposal.customerProfile.nationalId,

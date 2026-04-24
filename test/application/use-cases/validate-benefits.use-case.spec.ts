@@ -1,10 +1,12 @@
 import { CreateProposalUseCase } from '../../../src/application/use-cases/create-proposal.use-case';
 import { ValidateBenefitSelectionUseCase } from '../../../src/application/use-cases/validate-benefits.use-case';
+import { ValidateOfferEligibilityUseCase } from '../../../src/application/use-cases/validate-offer-eligibility.use-case';
 import { InMemoryProposalRepository } from '../../../src/infrastructure/repositories/in-memory-proposal.repository';
 import { OutboxEventPublisher } from '../../../src/application/services/outbox-event.publisher';
 import { BenefitEligibilityPolicy } from '../../../src/domain/policies/benefit-eligibility.policy';
 import { BenefitType } from '../../../src/domain/enums/benefit-type.enum';
 import { ProposalStatus } from '../../../src/domain/enums/proposal-status.enum';
+import { OfferEligibilityPolicy } from '../../../src/domain/policies/offer-eligibility.policy';
 
 class DummyPublisher extends OutboxEventPublisher {
   public events: any[] = [];
@@ -18,6 +20,11 @@ describe('ValidateBenefitSelectionUseCase', () => {
   const repository = new InMemoryProposalRepository();
   const publisher = new DummyPublisher(repository as any);
   const createProposalUseCase = new CreateProposalUseCase(repository, publisher as any);
+  const validateOfferUseCase = new ValidateOfferEligibilityUseCase(
+    repository,
+    new OfferEligibilityPolicy(),
+    publisher as any,
+  );
   const useCase = new ValidateBenefitSelectionUseCase(
     repository,
     new BenefitEligibilityPolicy(),
@@ -42,6 +49,7 @@ describe('ValidateBenefitSelectionUseCase', () => {
       offerType: 'A' as any,
       selectedBenefits: [],
     });
+    await validateOfferUseCase.execute('proposal-benefits-1');
 
     const result = await useCase.execute('proposal-benefits-1', [BenefitType.CASHBACK]);
     const updatedProposal = await repository.findById('proposal-benefits-1');
@@ -50,7 +58,7 @@ describe('ValidateBenefitSelectionUseCase', () => {
     expect(result.eligibleBenefits).toEqual([BenefitType.CASHBACK]);
     expect(updatedProposal?.status).toBe(ProposalStatus.BENEFITS_VALIDATED);
     expect(updatedProposal?.selectedBenefits.benefits).toEqual([BenefitType.CASHBACK]);
-    expect(publisher.events[1].eventType).toBe('benefits.selection.validated');
+    expect(publisher.events.at(-1)?.eventType).toBe('benefits.selection.validated');
   });
 
   it('rejects benefits that are not eligible for the selected offer', async () => {
@@ -67,6 +75,7 @@ describe('ValidateBenefitSelectionUseCase', () => {
       offerType: 'A' as any,
       selectedBenefits: [],
     });
+    await validateOfferUseCase.execute('proposal-benefits-2');
 
     const result = await useCase.execute('proposal-benefits-2', [BenefitType.TRAVEL_INSURANCE]);
     const updatedProposal = await repository.findById('proposal-benefits-2');
@@ -75,5 +84,25 @@ describe('ValidateBenefitSelectionUseCase', () => {
     expect(result.rejectedRules).toContain('Travel insurance is only available for offer C');
     expect(updatedProposal?.status).toBe(ProposalStatus.REJECTED);
     expect(updatedProposal?.selectedBenefits.benefits).toEqual([BenefitType.TRAVEL_INSURANCE]);
+  });
+
+  it('rejects benefits validation before offer validation', async () => {
+    await createProposalUseCase.execute({
+      proposalId: 'proposal-benefits-3',
+      customerProfile: {
+        fullName: 'Mia Doe',
+        nationalId: '99990000',
+        income: 4000,
+        investments: 200,
+        currentAccountYears: 1,
+        email: 'mia@example.com',
+      },
+      offerType: 'A' as any,
+      selectedBenefits: [],
+    });
+
+    await expect(useCase.execute('proposal-benefits-3', [BenefitType.CASHBACK])).rejects.toThrow(
+      'Proposal must complete offer validation before benefits validation',
+    );
   });
 });

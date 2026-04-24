@@ -1,4 +1,4 @@
-import { ProposalRepository } from '../ports/proposal.repository';
+import { ProposalRepository } from '../ports/outbound/proposal.repository.port';
 
 export class GetProposalStatusUseCase {
   constructor(private readonly repository: ProposalRepository) {}
@@ -14,6 +14,7 @@ export class GetProposalStatusUseCase {
       status: proposal.status,
       cardCreationStatus: proposal.cardCreationStatus,
       selectedBenefits: proposal.selectedBenefits.benefits,
+      benefitActivationStatus: proposal.benefitActivationStatus,
       rejectionReason: proposal.rejectionReason,
       cardId: proposal.cardId,
     };
