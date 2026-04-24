@@ -1,7 +1,8 @@
 import { CreditCardProposal } from '../../domain/entities/credit-card-proposal.entity';
 import { OfferEligibilityPolicy } from '../../domain/policies/offer-eligibility.policy';
 import { OutboxEventPublisher } from '../services/outbox-event.publisher';
-import { ProposalRepository } from '../ports/proposal.repository';
+import { ProposalRepository } from '../ports/outbound/proposal.repository.port';
+import { ProposalStatus } from '../../domain/enums/proposal-status.enum';
 
 export class ValidateOfferEligibilityUseCase {
   constructor(
@@ -19,6 +20,10 @@ export class ValidateOfferEligibilityUseCase {
     const proposal = await this.repository.findById(proposalId);
     if (!proposal) {
       throw new Error(`Proposal ${proposalId} not found`);
+    }
+
+    if (proposal.status !== ProposalStatus.RECEIVED) {
+      throw new Error(`Proposal must be in RECEIVED status before offer validation`);
     }
 
     const result = this.policy.evaluate(proposal.customerProfile, proposal.offerType);

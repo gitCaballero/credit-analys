@@ -1,6 +1,6 @@
 import { BenefitType } from '../../domain/enums/benefit-type.enum';
-import { BenefitsAdapter } from '../ports/benefits.adapter';
-import { ProposalRepository } from '../ports/proposal.repository';
+import { BenefitsPort } from '../ports/outbound/benefits.port';
+import { ProposalRepository } from '../ports/outbound/proposal.repository.port';
 import { OutboxEventPublisher } from '../services/outbox-event.publisher';
 import { BenefitActivationStatus } from '../../domain/enums/benefit-activation-status.enum';
 import { CardCreationStatus } from '../../domain/enums/card-creation-status.enum';
@@ -9,7 +9,7 @@ import { ProposalStatus } from '../../domain/enums/proposal-status.enum';
 export class ActivateBenefitsUseCase {
   constructor(
     private readonly repository: ProposalRepository,
-    private readonly adapter: BenefitsAdapter,
+    private readonly benefitsPort: BenefitsPort,
     private readonly outboxPublisher: OutboxEventPublisher,
   ) {}
 
@@ -19,13 +19,17 @@ export class ActivateBenefitsUseCase {
       throw new Error(`Proposal ${proposalId} not found`);
     }
 
+    if (proposal.status !== ProposalStatus.CARD_ACCOUNT_CREATED) {
+      throw new Error('Proposal must have a created card account before benefits activation');
+    }
+
     if (proposal.cardCreationStatus !== CardCreationStatus.CREATED) {
       throw new Error('Card account must be created before benefits activation');
     }
 
     const activationResults = await Promise.all(
       proposal.selectedBenefits.benefits.map(async (benefit) => {
-        const result = await this.adapter.activateBenefit({
+        const result = await this.benefitsPort.activateBenefit({
           proposalId: proposal.proposalId,
           cardId: proposal.cardId!,
           benefit,
@@ -64,7 +68,7 @@ export class ActivateBenefitsUseCase {
       proposalId: proposal.proposalId,
       cardId: proposal.cardId,
       statuses: proposal.benefitActivationStatus,
-      completed: proposal.status === ProposalStatus.COMPLETED,
+      completed: allActivated,
     };
   }
 }

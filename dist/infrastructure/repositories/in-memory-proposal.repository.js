@@ -11,5 +11,8 @@ class InMemoryProposalRepository {
     async findById(proposalId) {
         return this.store.get(proposalId) ?? null;
     }
+    async findAll() {
+        return Array.from(this.store.values());
+    }
 }
 exports.InMemoryProposalRepository = InMemoryProposalRepository;

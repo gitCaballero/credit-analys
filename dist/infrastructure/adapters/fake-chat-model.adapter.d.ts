@@ -1,4 +1,4 @@
-import { ChatAssistantModelAdapter, ChatAssistantModelRequest, ChatAssistantModelResponse } from '../../application/ports/chat-assistant.adapter';
-export declare class FakeChatModelAdapter implements ChatAssistantModelAdapter {
+import { ChatAssistantModelPort, ChatAssistantModelRequest, ChatAssistantModelResponse } from '../../application/ports/outbound/chat-assistant-model.port';
+export declare class FakeChatModelAdapter implements ChatAssistantModelPort {
     interpretIntent(request: ChatAssistantModelRequest): Promise<ChatAssistantModelResponse>;
 }

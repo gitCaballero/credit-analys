@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "start": "ts-node-dev --respawn --transpile-only src/main.ts",
-    "assistant:cli": "ts-node-dev --respawn --transpile-only src/interfaces/cli/assistant-cli.ts",
-    "assistant:cli:dist": "node dist/interfaces/cli/assistant-cli.js",
+    "assistant:cli": "ts-node-dev --respawn --transpile-only src/adapters/inbound/cli/assistant-cli.ts",
+    "assistant:cli:dist": "node dist/adapters/inbound/cli/assistant-cli.js",
     "start:prod": "node dist/main.js",
     "build": "tsc  -p tsconfig.build.json",
     "test": "jest"

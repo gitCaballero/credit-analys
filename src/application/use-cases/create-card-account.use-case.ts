@@ -1,12 +1,12 @@
-import { CardAccountAdapter } from '../ports/card-account.adapter';
-import { ProposalRepository } from '../ports/proposal.repository';
+import { CardAccountPort } from '../ports/outbound/card-account.port';
+import { ProposalRepository } from '../ports/outbound/proposal.repository.port';
 import { OutboxEventPublisher } from '../services/outbox-event.publisher';
 import { ProposalStatus } from '../../domain/enums/proposal-status.enum';
 
 export class CreateCardAccountUseCase {
   constructor(
     private readonly repository: ProposalRepository,
-    private readonly adapter: CardAccountAdapter,
+    private readonly cardAccountPort: CardAccountPort,
     private readonly outboxPublisher: OutboxEventPublisher,
   ) {}
 
@@ -38,7 +38,7 @@ export class CreateCardAccountUseCase {
       occurredAt: new Date().toISOString(),
     });
 
-    const response = await this.adapter.createCardAccount({
+    const response = await this.cardAccountPort.createCardAccount({
       proposalId: proposal.proposalId,
       fullName: proposal.customerProfile.fullName,
       nationalId: proposal.customerProfile.nationalId,

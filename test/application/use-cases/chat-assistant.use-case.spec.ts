@@ -1,5 +1,6 @@
 import { CreateProposalUseCase } from '../../../src/application/use-cases/create-proposal.use-case';
 import { GetProposalStatusUseCase } from '../../../src/application/use-cases/get-proposal-status.use-case';
+import { ListProposalsUseCase } from '../../../src/application/use-cases/list-proposals.use-case';
 import { ValidateOfferEligibilityUseCase } from '../../../src/application/use-cases/validate-offer-eligibility.use-case';
 import { ValidateBenefitSelectionUseCase } from '../../../src/application/use-cases/validate-benefits.use-case';
 import { SubmitProposalUseCase } from '../../../src/application/use-cases/submit-proposal.use-case';
@@ -16,7 +17,7 @@ import { OutboxEventPublisher } from '../../../src/application/services/outbox-e
 import { BenefitEligibilityPolicy } from '../../../src/domain/policies/benefit-eligibility.policy';
 import { OfferEligibilityPolicy } from '../../../src/domain/policies/offer-eligibility.policy';
 import { BenefitType } from '../../../src/domain/enums/benefit-type.enum';
-import { ChatAssistantModelAdapter } from '../../../src/application/ports/chat-assistant.adapter';
+import { ChatAssistantModelPort } from '../../../src/application/ports/outbound/chat-assistant-model.port';
 
 class DummyOutboxPublisher extends OutboxEventPublisher {
   public events: any[] = [];
@@ -41,6 +42,7 @@ describe('ChatAssistantUseCase', () => {
   const activateBenefitsUseCase = new ActivateBenefitsUseCase(repository, benefitsAdapter, publisher as any);
   const aiAssistantAdapter = new FakeAiAssistantAdapter();
   const generateProposalExplanationUseCase = new GenerateProposalExplanationUseCase(repository, { explainProposal: aiAssistantAdapter.generateProposalExplanation.bind(aiAssistantAdapter) } as any);
+  const listProposalsUseCase = new ListProposalsUseCase(repository);
   const chatModelAdapter = new FakeChatModelAdapter();
   const chatAssistantUseCase = new ChatAssistantUseCase(
     createProposalUseCase,
@@ -50,6 +52,7 @@ describe('ChatAssistantUseCase', () => {
     createCardAccountUseCase,
     activateBenefitsUseCase,
     new GetProposalStatusUseCase(repository),
+    listProposalsUseCase,
     generateProposalExplanationUseCase,
     chatModelAdapter,
   );
@@ -75,6 +78,8 @@ describe('ChatAssistantUseCase', () => {
     expect(response.toolName).toBe('create_proposal');
     expect(response.toolResult).toHaveProperty('proposalId', 'proposal-chat-1');
     expect(response.toolResult).toHaveProperty('offerType', 'A');
+    expect(response.toolResult).toHaveProperty('customerProfile.nationalId', '****3344');
+    expect(response.toolResult).toHaveProperty('customerProfile.email', 'c***@example.com');
   });
 
   it('checks proposal status from chat', async () => {
@@ -93,11 +98,11 @@ describe('ChatAssistantUseCase', () => {
     });
 
     expect(response.toolName).toBeUndefined();
-    expect(response.message).toContain('Puedo ayudarte');
+    expect(response.message).toContain('Posso ajudá-lo');
   });
 
   it('uses request parameters when the model omits create_proposal fields', async () => {
-    const sparseModelAdapter: ChatAssistantModelAdapter = {
+    const sparseModelAdapter: ChatAssistantModelPort = {
       interpretIntent: jest.fn().mockResolvedValue({
         toolName: 'create_proposal',
         toolInput: {},
@@ -113,6 +118,7 @@ describe('ChatAssistantUseCase', () => {
       createCardAccountUseCase,
       activateBenefitsUseCase,
       new GetProposalStatusUseCase(repository),
+      listProposalsUseCase,
       generateProposalExplanationUseCase,
       sparseModelAdapter,
     );
@@ -137,5 +143,109 @@ describe('ChatAssistantUseCase', () => {
 
     expect(response.toolName).toBe('create_proposal');
     expect(response.toolResult).toHaveProperty('proposalId', 'proposal-chat-2');
+  });
+
+  it('blocks approval actions in the customer assistant audience', async () => {
+    const approvalModelAdapter: ChatAssistantModelPort = {
+      interpretIntent: jest.fn().mockResolvedValue({
+        toolName: 'validate_offer',
+        toolInput: { proposalId: 'proposal-chat-1' },
+        assistantMessage: 'Vamos validar a oferta.',
+      }),
+    };
+
+    const audienceAwareUseCase = new ChatAssistantUseCase(
+      createProposalUseCase,
+      validateOfferEligibilityUseCase,
+      validateBenefitSelectionUseCase,
+      submitProposalUseCase,
+      createCardAccountUseCase,
+      activateBenefitsUseCase,
+      new GetProposalStatusUseCase(repository),
+      listProposalsUseCase,
+      generateProposalExplanationUseCase,
+      approvalModelAdapter,
+    );
+
+    const response = await audienceAwareUseCase.execute({
+      userMessage: 'Valida la oferta de la propuesta proposal-chat-1',
+      proposalId: 'proposal-chat-1',
+      audience: 'customer',
+    });
+
+    expect(response.toolName).toBeUndefined();
+    expect(response.message).toContain('assistente do cliente');
+  });
+
+  it('allows approval actions in the credit specialist audience', async () => {
+    const approvalModelAdapter: ChatAssistantModelPort = {
+      interpretIntent: jest.fn().mockResolvedValue({
+        toolName: 'validate_offer',
+        toolInput: { proposalId: 'proposal-chat-1' },
+        assistantMessage: 'Vamos validar a oferta.',
+      }),
+    };
+
+    const audienceAwareUseCase = new ChatAssistantUseCase(
+      createProposalUseCase,
+      validateOfferEligibilityUseCase,
+      validateBenefitSelectionUseCase,
+      submitProposalUseCase,
+      createCardAccountUseCase,
+      activateBenefitsUseCase,
+      new GetProposalStatusUseCase(repository),
+      listProposalsUseCase,
+      generateProposalExplanationUseCase,
+      approvalModelAdapter,
+    );
+
+    const response = await audienceAwareUseCase.execute({
+      userMessage: 'Valida la oferta de la propuesta proposal-chat-1',
+      proposalId: 'proposal-chat-1',
+      audience: 'credit_specialist',
+    });
+
+    expect(response.toolName).toBe('validate_offer');
+  });
+
+  it('allows listing proposals in the credit specialist audience', async () => {
+    const response = await chatAssistantUseCase.execute({
+      userMessage: 'Listar propostas',
+      audience: 'credit_specialist',
+    });
+
+    expect(response.toolName).toBe('list_proposals');
+    expect(response.toolResult).toEqual(expect.any(Array));
+  });
+
+  it('blocks listing proposals in the customer audience', async () => {
+    const listModelAdapter: ChatAssistantModelPort = {
+      interpretIntent: jest.fn().mockResolvedValue({
+        toolName: 'list_proposals',
+        toolInput: {},
+        assistantMessage: 'Consultando propostas.',
+      }),
+    };
+
+    const audienceAwareUseCase = new ChatAssistantUseCase(
+      createProposalUseCase,
+      validateOfferEligibilityUseCase,
+      validateBenefitSelectionUseCase,
+      submitProposalUseCase,
+      createCardAccountUseCase,
+      activateBenefitsUseCase,
+      new GetProposalStatusUseCase(repository),
+      listProposalsUseCase,
+      generateProposalExplanationUseCase,
+      listModelAdapter,
+    );
+
+    const response = await audienceAwareUseCase.execute({
+      userMessage: 'Listar propostas',
+      audience: 'customer',
+    });
+
+    expect(response.toolName).toBeUndefined();
+    expect(response.message).toContain('assistente do cliente');
   });
 });

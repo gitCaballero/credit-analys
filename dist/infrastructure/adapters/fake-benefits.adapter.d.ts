@@ -1,4 +1,4 @@
-import { BenefitsAdapter, BenefitActivationResponse, ActivateBenefitPayload } from '../../application/ports/benefits.adapter';
-export declare class FakeBenefitsAdapter implements BenefitsAdapter {
+import { ActivateBenefitPayload, BenefitActivationResponse, BenefitsPort } from '../../application/ports/outbound/benefits.port';
+export declare class FakeBenefitsAdapter implements BenefitsPort {
     activateBenefit(payload: ActivateBenefitPayload): Promise<BenefitActivationResponse>;
 }

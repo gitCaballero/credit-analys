@@ -1,0 +1,74 @@
+sequenceDiagram
+  autonumber
+  actor Cliente
+  participant UI as Canal cliente
+  participant AC as AssistantController
+  participant CA as ChatAssistantUseCase
+  participant Model as OpenAI Chat Model
+  participant Fallback as FakeChatModelAdapter
+  participant CP as CreateProposalUseCase
+  participant GS as GetProposalStatusUseCase
+  participant Repo as ProposalRepository
+
+  Note over Cliente,Repo: Flujo 1 to-be: el cliente usa un asistente dedicado para captura de datos, seleccion de beneficios y consulta de estado
+
+  Cliente->>UI: Inicia solicitud o consulta de estado
+
+  alt Nueva solicitud con agente
+    Cliente->>UI: Informa datos personales, oferta y beneficios deseados
+    UI->>AC: POST /assistant/customer/message
+    AC->>CA: execute(userMessage, parameters)
+    CA->>Model: interpretIntent()
+    Model-->>CA: toolName=create_proposal + toolInput
+    CA->>CP: execute(command)
+    CP->>Repo: save(proposal RECEIVED)
+    Repo-->>CP: ok
+    CP-->>CA: proposalId + estado inicial
+    CA-->>AC: mensaje guiado + toolResult
+    AC-->>UI: Propuesta creada
+    UI-->>Cliente: Entrega proposalId y confirma recepcion
+  else Nueva solicitud con fallback local
+    Cliente->>UI: Informa datos personales, oferta y beneficios deseados
+    UI->>AC: POST /assistant/customer/message
+    AC->>CA: execute(userMessage, parameters)
+    CA->>Fallback: interpretIntent()
+    Fallback-->>CA: toolName=create_proposal + toolInput
+    CA->>CP: execute(command)
+    CP->>Repo: save(proposal RECEIVED)
+    Repo-->>CP: ok
+    CP-->>CA: proposalId + estado inicial
+    CA-->>AC: mensaje guiado + toolResult
+    AC-->>UI: Propuesta creada
+    UI-->>Cliente: Entrega proposalId y confirma recepcion
+  end
+
+  Note over Cliente,Repo: La aprobacion no ocurre aqui&#59; la propuesta se entrega al especialista de credito
+
+  opt Consulta de estado por parte del cliente
+    Cliente->>UI: Solicita estado de la propuesta con proposalId
+    alt Consulta conversacional con agente
+      UI->>AC: POST /assistant/customer/message
+      AC->>CA: execute(userMessage, proposalId)
+      CA->>Model: interpretIntent()
+      Model-->>CA: toolName=check_status o explain_proposal
+      CA->>GS: execute(proposalId)
+      GS->>Repo: findById(proposalId)
+      Repo-->>GS: proposal
+      GS-->>CA: status + cardCreationStatus + selectedBenefits + benefitActivationStatus
+      CA-->>AC: respuesta conversacional
+      AC-->>UI: estado de propuesta
+      UI-->>Cliente: muestra estado actual
+    else Consulta conversacional con fallback local
+      UI->>AC: POST /assistant/customer/message
+      AC->>CA: execute(userMessage, proposalId)
+      CA->>Fallback: interpretIntent()
+      Fallback-->>CA: toolName=check_status o explain_proposal
+      CA->>GS: execute(proposalId)
+      GS->>Repo: findById(proposalId)
+      Repo-->>GS: proposal
+      GS-->>CA: status + cardCreationStatus + selectedBenefits + benefitActivationStatus
+      CA-->>AC: respuesta conversacional
+      AC-->>UI: estado de propuesta
+      UI-->>Cliente: muestra estado actual
+    end
+  end

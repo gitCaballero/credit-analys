@@ -1,0 +1,140 @@
+sequenceDiagram
+  autonumber
+  actor Cliente
+  actor Especialista as Especialista de credito
+  participant PC as ProposalController
+  participant PS as ProposalService
+  participant CP as CreateProposalUseCase
+  participant VO as ValidateOfferEligibilityUseCase
+  participant VB as ValidateBenefitSelectionUseCase
+  participant SP as SubmitProposalUseCase
+  participant CC as CreateCardAccountUseCase
+  participant AB as ActivateBenefitsUseCase
+  participant GS as GetProposalStatusUseCase
+  participant EX as GenerateProposalExplanationUseCase
+  participant Repo as ProposalRepository
+
+  Note over Cliente,Repo: Flujo 3 to-be: no hay agente ni fallback; toda la operacion usa endpoints y servicios actuales
+
+  Cliente->>PC: POST /proposals
+  PC->>PS: createProposal(payload)
+  PS->>CP: execute(command)
+  CP->>Repo: save(proposal RECEIVED)
+  Repo-->>CP: ok
+  CP-->>PS: proposal creada
+  PS-->>PC: respuesta de creacion
+  PC-->>Cliente: proposalId + estado inicial
+
+  Note over Cliente,Repo: A partir de aqui el especialista ejecuta el flujo de aprobacion manualmente
+
+  Especialista->>PC: POST /proposals/:proposalId/offer-validation
+  PC->>PS: validateOffer(proposalId)
+  PS->>VO: execute(proposalId)
+  VO->>Repo: findById(proposalId)
+  Repo-->>VO: proposal
+  VO->>Repo: save(OFFER_VALIDATED o REJECTED)
+  Repo-->>VO: ok
+  VO-->>PS: decision de oferta
+  PS-->>PC: resultado
+  PC-->>Especialista: aprobada o rechazada
+
+  alt Oferta aprobada
+    Especialista->>PC: POST /proposals/:proposalId/benefits-validation
+    PC->>PS: validateBenefits(proposalId, selectedBenefits)
+    PS->>VB: execute(proposalId, selectedBenefits)
+    VB->>Repo: findById(proposalId)
+    Repo-->>VB: proposal
+    VB->>Repo: save(BENEFITS_VALIDATED o REJECTED)
+    Repo-->>VB: ok
+    VB-->>PS: decision de beneficios
+    PS-->>PC: resultado
+    PC-->>Especialista: aprobados o rechazados
+  else Oferta rechazada
+    Especialista->>PC: GET /proposals/:proposalId/status
+    PC->>PS: getProposalStatus(proposalId)
+    PS->>GS: execute(proposalId)
+    GS->>Repo: findById(proposalId)
+    Repo-->>GS: proposal
+    GS-->>PS: status actual
+    PS-->>PC: estado
+    PC-->>Especialista: flujo finalizado por rechazo
+  end
+
+  alt Beneficios aprobados
+    Especialista->>PC: POST /proposals/:proposalId/submit
+    PC->>PS: submitProposal(proposalId)
+    PS->>SP: execute(proposalId)
+    SP->>Repo: findById(proposalId)
+    Repo-->>SP: proposal
+    SP->>Repo: save(SUBMITTED)
+    Repo-->>SP: ok
+    SP-->>PS: submit realizado
+    PS-->>PC: respuesta
+    PC-->>Especialista: propuesta enviada
+
+    Especialista->>PC: POST /proposals/:proposalId/card-creation
+    PC->>PS: createCardAccount(proposalId)
+    PS->>CC: execute(proposalId)
+    CC->>Repo: findById(proposalId)
+    Repo-->>CC: proposal
+    CC->>Repo: save(cardCreationStatus REQUESTED)
+    Repo-->>CC: ok
+    CC->>Repo: save(CARD_ACCOUNT_CREATED o FAILED)
+    Repo-->>CC: ok
+    CC-->>PS: cardId o motivo de fallo
+    PS-->>PC: resultado
+    PC-->>Especialista: tarjeta creada o fallo tecnico
+
+    alt Tarjeta creada
+      Especialista->>PC: POST /proposals/:proposalId/benefits-activation
+      PC->>PS: activateBenefits(proposalId)
+      PS->>AB: execute(proposalId)
+      AB->>Repo: findById(proposalId)
+      Repo-->>AB: proposal
+      AB->>Repo: save(benefitActivationStatus y estado final)
+      Repo-->>AB: ok
+      AB-->>PS: completed o parcial
+      PS-->>PC: resultado
+      PC-->>Especialista: beneficios activados
+    else Tarjeta no creada
+      Especialista->>PC: GET /proposals/:proposalId/status
+      PC->>PS: getProposalStatus(proposalId)
+      PS->>GS: execute(proposalId)
+      GS->>Repo: findById(proposalId)
+      Repo-->>GS: proposal
+      GS-->>PS: status actual
+      PS-->>PC: estado
+      PC-->>Especialista: pendiente tecnico recuperable
+    end
+  else Beneficios rechazados
+    Especialista->>PC: GET /proposals/:proposalId/status
+    PC->>PS: getProposalStatus(proposalId)
+    PS->>GS: execute(proposalId)
+    GS->>Repo: findById(proposalId)
+    Repo-->>GS: proposal
+    GS-->>PS: status actual
+    PS-->>PC: estado
+    PC-->>Especialista: flujo finalizado por rechazo
+  end
+
+  opt Consulta final del cliente o del especialista
+    Cliente->>PC: GET /proposals/:proposalId/status
+    PC->>PS: getProposalStatus(proposalId)
+    PS->>GS: execute(proposalId)
+    GS->>Repo: findById(proposalId)
+    Repo-->>GS: proposal
+    GS-->>PS: status + cardCreationStatus + selectedBenefits + benefitActivationStatus
+    PS-->>PC: respuesta
+    PC-->>Cliente: estado final actual
+  end
+
+  opt Explicacion extendida
+    Especialista->>PC: GET /proposals/:proposalId/explanation
+    PC->>PS: explainProposal(proposalId)
+    PS->>EX: execute(proposalId)
+    EX->>Repo: findById(proposalId)
+    Repo-->>EX: proposal
+    EX-->>PS: explicacion enriquecida
+    PS-->>PC: respuesta
+    PC-->>Especialista: explicacion del caso
+  end

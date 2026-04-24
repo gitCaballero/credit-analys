@@ -1,63 +1,61 @@
 flowchart TD
-  A["Cliente inicia solicitud"] --> B["Captura de datos personales + oferta + beneficios"]
-  B --> C["Crear propuesta en dominio"]
-  C --> C1["Guardar propuesta y publicar evento proposal.received"]
-  C1 --> D["Validar elegibilidad de oferta"]
+  Start["Inicio: cliente o asistente inicia la solicitud"] --> Entry{"Canal de entrada"}
+  Entry -->|HTTP API| Capture["Recibir datos personales + oferta + beneficios"]
+  Entry -->|CLI / asistente| Capture
 
-  D --> D1["Evaluar reglas de oferta"]
-  D1 --> D2["Oferta seleccionada en lista de elegibles?"]
-  D2 -->|Sí| D3["Marcar propuesta como OFFER_VALIDATED"]
-  D2 -->|No| Z["Marcar propuesta como REJECTED y exponer motivo"]
+  Capture --> Create["Crear propuesta"]
+  Create --> Received["Estado inicial: status = RECEIVED\ncardCreationStatus = NOT_CREATED"]
+  Received --> EventReceived["Persistir propuesta + auditoria\nPublicar outbox: proposal.received"]
 
-  D3 --> E["Validar selección de beneficios"]
-  E --> E1["Verificar reglas de beneficios"]
-  E1 --> E2["Cashback y Points no pueden coexistir"]
-  E1 --> E3["Travel Insurance solo para oferta C"]
-  E1 --> E4["VIP Lounge solo para oferta B o C"]
-  E1 --> E5["Descartar beneficios desconocidos"]
+  EventReceived --> OfferValidation["Validar elegibilidad de oferta"]
+  OfferValidation --> OfferRules["Evaluar reglas:\nA: income > 1000\nB: income > 15000 and investments > 5000\nC: income > 50000 and currentAccountYears > 2"]
+  OfferRules --> OfferDecision{"Oferta seleccionada elegible?"}
+  OfferDecision -->|Si| OfferApproved["Actualizar status = OFFER_VALIDATED\nAuditoria: offer.validated\nOutbox: offer.eligibility.calculated"]
+  OfferDecision -->|No| Rejected["Final de negocio: status = REJECTED\nRegistrar motivo y auditoria"]
 
-  E5 -->|Sin rechazos| E6["Marcar propuesta como BENEFITS_VALIDATED"]
-  E5 -->|Con rechazos| Z
+  OfferApproved --> BenefitsValidation["Validar beneficios seleccionados"]
+  BenefitsValidation --> BenefitsRules["Reglas:\nCASHBACK y POINTS no coexistentes\nTRAVEL_INSURANCE solo oferta C\nVIP_LOUNGE solo ofertas B y C\nBeneficios desconocidos se rechazan"]
+  BenefitsRules --> BenefitsDecision{"Seleccion valida?"}
+  BenefitsDecision -->|Si| BenefitsApproved["Actualizar status = BENEFITS_VALIDATED\nAuditoria: benefits.validated\nOutbox: benefits.selection.validated"]
+  BenefitsDecision -->|No| Rejected
 
-  E6 --> F["Enviar propuesta para procesamiento"]
-  F --> F1["Actualizar estado a SUBMITTED"]
-  F1 --> G["Crear cuenta de tarjeta"]
+  BenefitsApproved --> Submit["Enviar propuesta"]
+  Submit --> Submitted["Actualizar status = SUBMITTED\nAuditoria: proposal.submitted\nOutbox: proposal.submitted"]
 
-  G -->|Creada| G1["Actualizar cardCreationStatus a CREATED"]
-  G -->|Falló| Y["Actualizar cardCreationStatus a NOT_CREATED"]
+  Submitted --> CardRequest["Solicitar creacion de cuenta de tarjeta"]
+  CardRequest --> Requested["Actualizar cardCreationStatus = REQUESTED\nAuditoria: card.creation.requested\nOutbox: card.creation.requested"]
+  Requested --> CardProvider{"Adapter de tarjeta responde"}
+  CardProvider -->|Exito| CardCreated["Actualizar status = CARD_ACCOUNT_CREATED\ncardCreationStatus = CREATED\nGuardar cardId\nAuditoria: card.created\nOutbox: card.created"]
+  CardProvider -->|Falla tecnica| CardFailed["Estado operativo: cardCreationStatus = FAILED\nstatus principal permanece SUBMITTED\nAuditoria: card.creation.failed\nOutbox: card.creation.failed"]
 
-  G1 --> H["Activar beneficios elegibles"]
-  H --> H1["Publicar evento benefits.activation.requested"]
-  H1 --> H2["Actualizar beneficios activados y estado final"]
+  CardFailed --> RetryDecision{"Se reintenta crear tarjeta?"}
+  RetryDecision -->|Si| CardRequest
+  RetryDecision -->|No| PendingEnd["Fin operativo incompleto:\npropuesta sigue SUBMITTED con cardCreationStatus = FAILED"]
 
-  H2 --> J["Cliente consulta estado final"]
-  Y --> J
-  Z --> J
+  CardCreated --> Activation["Activar beneficios seleccionados"]
+  Activation --> ActivationLoop["Ejecutar activacion por beneficio\nActualizar benefitActivationStatus"]
+  ActivationLoop --> ActivationDecision{"Todos activados?"}
+  ActivationDecision -->|Si| Completed["Fin exitoso: status = COMPLETED\nAuditoria: proposal.completed\nOutbox: benefits.activated"]
+  ActivationDecision -->|No| PartialEnd["Fin operativo parcial:\nstatus no llega a COMPLETED\nOutbox: benefits.activated"]
 
-  C1 --> K["Registrar auditoría y evento outbox"]
-  D3 --> K
-  Z --> K
-  E6 --> K
-  F1 --> K
-  G1 --> K
-  H2 --> K
+  Rejected --> StatusQuery["Cliente consulta estado"]
+  PendingEnd --> StatusQuery
+  PartialEnd --> StatusQuery
+  Completed --> StatusQuery
 
-  L["Assistente IA com OpenAI"] --> B
-  L --> J
-  M["Fallback local sem OPENAI_API_KEY"] --> B
-  M --> J
+  StatusQuery --> StatusPayload["Respuesta actual de status:\nproposalId\nstatus\ncardCreationStatus\nselectedBenefits\nrejectionReason\ncardId"]
+  StatusPayload --> GapNote["Gap actual:\nla consulta de status no incluye benefitActivationStatus"]
 
-  N["Proteção de dados sensíveis"] --> C
-  N --> K
+  AssistantAI["Asistente IA con OpenAI o fallback local"] --> Capture
+  AssistantAI --> StatusQuery
 
-  subgraph Regras_de_Oferta["Reglas de elegibilidad de oferta"]
-    D1
-    D2
-  end
+  SensitiveData["Dato sensible presente en el flujo:\nfullName, nationalId, email, income, investments"] -.-> Capture
+  SensitiveData -.-> EventReceived
+  SensitiveData -.-> StatusPayload
 
-  subgraph Reglas_de_Beneficios["Reglas de selección de beneficios"]
-    E2
-    E3
-    E4
-    E5
+  subgraph Finales["Finales del flujo actual"]
+    Rejected
+    PendingEnd
+    PartialEnd
+    Completed
   end

@@ -10,7 +10,7 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const config_1 = require("@nestjs/config");
-const proposal_module_1 = require("./interfaces/http/proposal.module");
+const proposal_module_1 = require("./bootstrap/nest/proposal.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;

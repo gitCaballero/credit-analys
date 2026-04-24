@@ -1,4 +1,4 @@
-import { ProposalRepository } from '../ports/proposal.repository';
+import { ProposalRepository } from '../ports/outbound/proposal.repository.port';
 import { OutboxEventPublisher } from '../services/outbox-event.publisher';
 import { ProposalStatus } from '../../domain/enums/proposal-status.enum';
 

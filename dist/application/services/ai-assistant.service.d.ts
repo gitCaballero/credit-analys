@@ -1,6 +1,6 @@
-import { AiAssistantAdapter, AiAssistantRequest, AiAssistantResponse } from '../ports/ai-assistant.adapter';
+import { AiAssistantPort, AiAssistantRequest, AiAssistantResponse } from '../ports/outbound/ai-assistant.port';
 export declare class AiAssistantService {
-    private readonly adapter;
-    constructor(adapter: AiAssistantAdapter);
+    private readonly aiAssistantPort;
+    constructor(aiAssistantPort: AiAssistantPort);
     explainProposal(request: AiAssistantRequest): Promise<AiAssistantResponse>;
 }

@@ -2,7 +2,7 @@ import { CreditCardProposal } from '../../domain/entities/credit-card-proposal.e
 import { CustomerProfile } from '../../domain/entities/customer-profile.entity';
 import { OfferType } from '../../domain/enums/offer-type.enum';
 import { BenefitType } from '../../domain/enums/benefit-type.enum';
-import { ProposalRepository } from '../ports/proposal.repository';
+import { ProposalRepository } from '../ports/outbound/proposal.repository.port';
 import { OutboxEventPublisher } from '../services/outbox-event.publisher';
 
 export interface CreateProposalCommand {

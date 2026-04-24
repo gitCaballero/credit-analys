@@ -84,11 +84,22 @@ docker compose build --no-cache
 - `POST /proposals/:proposalId/card-creation` - solicita criação de conta de cartão
 - `POST /proposals/:proposalId/benefits-activation` - ativa benefícios aprovados
 - `GET /proposals/:proposalId/status` - consulta status da proposta
-- `POST /assistant/message` - conversa com o assistente de crédito
+- `POST /assistant/message` - endpoint geral de compatibilidade para o assistente
+- `POST /assistant/customer/message` - assistente dedicado ao cliente
+- `POST /assistant/specialist/message` - assistente dedicado ao especialista de crédito
 
-## Uso do assistente (`assistant/message`)
+## Uso dos assistentes
 
-O endpoint `POST /assistant/message` permite interagir com o assistente de crédito usando linguagem natural.
+Os assistentes conversacionais agora podem ser separados por audiência:
+
+- cliente: captura de dados, seleção de benefícios e consulta de status
+- especialista: validação de oferta, validação de benefícios, submit, criação de cartão, ativação de benefícios e consulta do caso
+
+O endpoint `POST /assistant/message` continua disponível como rota geral.
+
+### Assistente do cliente
+
+Use `POST /assistant/customer/message` para a jornada do cliente.
 
 ### Variáveis de ambiente opcionais
 
@@ -99,7 +110,7 @@ Se não definir `OPENAI_API_KEY`, a aplicação usará um adaptador local de fal
 ### Exemplo de solicitação para criar uma proposta
 
 ```bash
-curl -X POST http://localhost:3000/assistant/message \
+curl -X POST http://localhost:3000/assistant/customer/message \
   -H 'Content-Type: application/json' \
   -d '{
     "userMessage": "Quero solicitar um crédito com oferta A e cashback",
@@ -122,10 +133,25 @@ curl -X POST http://localhost:3000/assistant/message \
 ### Exemplo de solicitação para consultar o status
 
 ```bash
-curl -X POST http://localhost:3000/assistant/message \
+curl -X POST http://localhost:3000/assistant/customer/message \
   -H 'Content-Type: application/json' \
   -d '{
     "userMessage": "Consulta o status da minha proposta proposal-1"
+  }'
+```
+
+### Assistente do especialista
+
+Use `POST /assistant/specialist/message` para executar o fluxo operacional da proposta.
+
+Exemplo:
+
+```bash
+curl -X POST http://localhost:3000/assistant/specialist/message \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "userMessage": "Valida a oferta da proposta proposal-1",
+    "proposalId": "proposal-1"
   }'
 ```
 
@@ -141,10 +167,12 @@ O projeto inclui um assistente interativo em terminal que pode ser executado loc
    ```
 2. O CLI abre um prompt com instruções em português.
 3. Você pode digitar:
-   - um número para selecionar a opção desejada
-   - uma mensagem em linguagem natural para o assistente interpretar
-   - `opcoes`, `menu` ou `ajuda` para mostrar as opções novamente
-   - `sair`, `exit` ou `quit` para encerrar
+  - um número para selecionar a opção desejada
+  - uma mensagem em linguagem natural para o assistente interpretar
+  - `perfil cliente` para o modo de atendimento do cliente
+  - `perfil especialista` para o modo operacional do especialista
+  - `opcoes`, `menu` ou `ajuda` para mostrar as opções novamente
+  - `sair`, `exit` ou `quit` para encerrar
 4. O assistente interativo faz perguntas para preencher os campos necessários.
 5. Quando solicitar `proposalId`, ele também pode mostrar o último ID de proposta criado.
 
@@ -224,11 +252,11 @@ Resposta esperada:
   "proposalId": "proposal-1",
   "customerProfile": {
     "fullName": "João Silva",
-    "nationalId": "12345",
+    "nationalId": "*2345",
     "income": 2000,
     "investments": 1000,
     "currentAccountYears": 1,
-    "email": "joao@example.com"
+    "email": "j***@example.com"
   },
   "offerType": "A",
   "selectedBenefits": [],
@@ -259,6 +287,7 @@ Resposta esperada:
   "status": "RECEIVED",
   "cardCreationStatus": "NOT_CREATED",
   "selectedBenefits": [],
+  "benefitActivationStatus": {},
   "rejectionReason": null,
   "cardId": null
 }
@@ -378,6 +407,10 @@ O repositório inclui documentos técnicos organizados em `docs/`:
 - `docs/prompt-outputs.md` - consolida outputs de prompts e orientações de arquitetura.
 - `docs/state-machine.md` - estados e transições do ciclo de vida da proposta.
 - `docs/flows.mmd` - fluxo ponta a ponta da originação do cartão, incluindo assistente IA e fallback local.
+- `docs/sequence-overview.mmd` - visão unificada dos fluxos de cliente, especialista e contingência.
+- `docs/flow-1-client-agent.mmd` - sequência do assistente do cliente.
+- `docs/flow-2-credit-specialist-agent.mmd` - sequência do assistente do especialista.
+- `docs/flow-3-direct-services.mmd` - sequência do fluxo direto por endpoints.
 - `docs/context-memory-strategy.md` - estratégia de memória e economia de tokens.
 - `docs/next-steps-recommendations.md` - recomendações para fortalecer arquitetura, segurança e operação.
 - `docs/prompt-guidance.md` - resumo das instruções e prompts mais relevantes do projeto.

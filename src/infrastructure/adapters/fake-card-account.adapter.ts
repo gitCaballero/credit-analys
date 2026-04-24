@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { CardAccountAdapter, CardAccountResponse, CreateCardAccountPayload } from '../../application/ports/card-account.adapter';
+import {
+  CardAccountPort,
+  CardAccountResponse,
+  CreateCardAccountPayload,
+} from '../../application/ports/outbound/card-account.port';
 
 @Injectable()
-export class FakeCardAccountAdapter implements CardAccountAdapter {
+export class FakeCardAccountAdapter implements CardAccountPort {
   async createCardAccount(payload: CreateCardAccountPayload): Promise<CardAccountResponse> {
     return {
       success: true,

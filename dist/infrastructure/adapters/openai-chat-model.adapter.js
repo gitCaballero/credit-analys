@@ -5,11 +5,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OpenAiChatModelAdapter = void 0;
 const openai_1 = __importDefault(require("openai"));
+const pii_util_1 = require("../../shared/security/pii.util");
+function sanitizeParameters(parameters) {
+    if (!parameters) {
+        return parameters;
+    }
+    const cloned = JSON.parse(JSON.stringify(parameters));
+    const customerProfile = cloned.customerProfile;
+    if (customerProfile) {
+        if (typeof customerProfile.fullName === 'string') {
+            customerProfile.fullName = `${customerProfile.fullName.charAt(0)}***`;
+        }
+        if (typeof customerProfile.nationalId === 'string') {
+            customerProfile.nationalId = (0, pii_util_1.maskNationalId)(customerProfile.nationalId);
+        }
+        if (typeof customerProfile.email === 'string') {
+            customerProfile.email = (0, pii_util_1.maskEmail)(customerProfile.email);
+        }
+    }
+    return cloned;
+}
 class OpenAiChatModelAdapter {
     constructor() {
         this.client = new openai_1.default({ apiKey: process.env.OPENAI_API_KEY });
     }
     async interpretIntent(request) {
+        const sanitizedParameters = sanitizeParameters(request.parameters);
         const toolDescriptions = request.availableTools
             .map((tool) => `- ${tool.name}: ${tool.description} Parâmetros requeridos: ${tool.requiredParameters.join(', ')}`)
             .join('\n');
@@ -22,9 +43,10 @@ Solicitação do usuário:
 ${request.userMessage}
 
 Contexto adicional:
+${request.audience ? `audience=${request.audience}` : 'audience=general'}
 ${request.proposalId ? `proposalId=${request.proposalId}` : 'sem proposalId'}
-${request.parameters ? `
-Parâmetros adicionais: ${JSON.stringify(request.parameters)}` : ''}
+${sanitizedParameters ? `
+Parâmetros adicionais: ${JSON.stringify(sanitizedParameters)}` : ''}
 
 Exemplo de resposta válida:
 {"toolName":"check_status","toolInput":{"proposalId":"ABC123"},"assistantMessage":"Consulto o status da sua proposta."}`;

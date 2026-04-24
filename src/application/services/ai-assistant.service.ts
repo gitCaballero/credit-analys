@@ -1,18 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  AiAssistantAdapter,
+  AiAssistantPort,
   AiAssistantRequest,
   AiAssistantResponse,
-} from '../ports/ai-assistant.adapter';
+} from '../ports/outbound/ai-assistant.port';
 
 @Injectable()
 export class AiAssistantService {
   constructor(
-    @Inject('AiAssistantAdapter')
-    private readonly adapter: AiAssistantAdapter,
+    @Inject('AiAssistantPort')
+    private readonly aiAssistantPort: AiAssistantPort,
   ) {}
 
   async explainProposal(request: AiAssistantRequest): Promise<AiAssistantResponse> {
-    return this.adapter.generateProposalExplanation(request);
+    return this.aiAssistantPort.generateProposalExplanation(request);
   }
 }

@@ -1,0 +1,166 @@
+sequenceDiagram
+  autonumber
+  actor Especialista as Especialista de credito
+  participant UI as Canal especialista
+  participant AC as AssistantController
+  participant CA as ChatAssistantUseCase
+  participant Model as OpenAI Chat Model
+  participant Fallback as FakeChatModelAdapter
+  participant VO as ValidateOfferEligibilityUseCase
+  participant VB as ValidateBenefitSelectionUseCase
+  participant SP as SubmitProposalUseCase
+  participant CC as CreateCardAccountUseCase
+  participant AB as ActivateBenefitsUseCase
+  participant GS as GetProposalStatusUseCase
+  participant Repo as ProposalRepository
+
+  Note over Especialista,Repo: Flujo 2 to-be: el especialista usa un asistente dedicado para ejecutar la aprobacion completa
+
+  Especialista->>UI: Toma proposalId para analisis
+
+  alt Especialista asistido por agente
+    UI->>AC: POST /assistant/specialist/message "validar oferta de la propuesta X"
+    AC->>CA: execute(userMessage, proposalId)
+    CA->>Model: interpretIntent()
+    Model-->>CA: toolName=validate_offer
+    CA->>VO: execute(proposalId)
+    VO->>Repo: findById(proposalId)
+    Repo-->>VO: proposal
+    VO->>Repo: save(status OFFER_VALIDATED REJECTED)
+    Repo-->>VO: ok
+    VO-->>CA: approved/reasons
+    CA-->>AC: respuesta de validacion
+    AC-->>UI: resultado al especialista
+  else Especialista asistido por fallback local
+    UI->>AC: POST /assistant/specialist/message "validar oferta de la propuesta X"
+    AC->>CA: execute(userMessage, proposalId)
+    CA->>Fallback: interpretIntent()
+    Fallback-->>CA: toolName=validate_offer
+    CA->>VO: execute(proposalId)
+    VO->>Repo: findById(proposalId)
+    Repo-->>VO: proposal
+    VO->>Repo: save(status OFFER_VALIDATED REJECTED)
+    Repo-->>VO: ok
+    VO-->>CA: approved/reasons
+    CA-->>AC: respuesta de validacion
+    AC-->>UI: resultado al especialista
+  end
+
+  alt Oferta aprobada
+    Especialista->>UI: Solicita validacion de beneficios
+    alt Con agente
+      UI->>AC: POST /assistant/specialist/message "validar beneficios de la propuesta X"
+      AC->>CA: execute(userMessage, proposalId, selectedBenefits)
+      CA->>Model: interpretIntent()
+      Model-->>CA: toolName=validate_benefits
+      CA->>VB: execute(proposalId, selectedBenefits)
+      VB->>Repo: findById(proposalId)
+      Repo-->>VB: proposal
+      VB->>Repo: save(status BENEFITS_VALIDATED REJECTED)
+      Repo-->>VB: ok
+      VB-->>CA: approved/reasons
+      CA-->>AC: respuesta de validacion
+      AC-->>UI: resultado al especialista
+    else Con fallback local
+      UI->>AC: POST /assistant/specialist/message "validar beneficios de la propuesta X"
+      AC->>CA: execute(userMessage, proposalId, selectedBenefits)
+      CA->>Fallback: interpretIntent()
+      Fallback-->>CA: toolName=validate_benefits
+      CA->>VB: execute(proposalId, selectedBenefits)
+      VB->>Repo: findById(proposalId)
+      Repo-->>VB: proposal
+      VB->>Repo: save(status BENEFITS_VALIDATED REJECTED)
+      Repo-->>VB: ok
+      VB-->>CA: approved/reasons
+      CA-->>AC: respuesta de validacion
+      AC-->>UI: resultado al especialista
+    end
+  else Oferta rechazada
+    UI-->>Especialista: Propuesta rechazada&#59; flujo termina para negocio
+  end
+
+  alt Beneficios aprobados
+    Especialista->>UI: Solicita submit de la propuesta
+    UI->>AC: POST /assistant/specialist/message "enviar propuesta X"
+    AC->>CA: execute(userMessage, proposalId)
+    alt Ruta agente
+      CA->>Model: interpretIntent()
+      Model-->>CA: toolName=submit_proposal
+    else Ruta fallback
+      CA->>Fallback: interpretIntent()
+      Fallback-->>CA: toolName=submit_proposal
+    end
+    CA->>SP: execute(proposalId)
+    SP->>Repo: findById(proposalId)
+    Repo-->>SP: proposal
+    SP->>Repo: save(status SUBMITTED)
+    Repo-->>SP: ok
+    SP-->>CA: submitted
+    CA-->>AC: confirmacion
+    AC-->>UI: submit realizado
+
+    Especialista->>UI: Solicita creacion de tarjeta
+    UI->>AC: POST /assistant/specialist/message "crear tarjeta para propuesta X"
+    AC->>CA: execute(userMessage, proposalId)
+    alt Ruta agente
+      CA->>Model: interpretIntent()
+      Model-->>CA: toolName=create_card_account
+    else Ruta fallback
+      CA->>Fallback: interpretIntent()
+      Fallback-->>CA: toolName=create_card_account
+    end
+    CA->>CC: execute(proposalId)
+    CC->>Repo: findById(proposalId)
+    Repo-->>CC: proposal
+    CC->>Repo: save(cardCreationStatus REQUESTED)
+    Repo-->>CC: ok
+    CC->>Repo: save(CARD_ACCOUNT_CREATED FALL_FAILED)
+    Repo-->>CC: ok
+    CC-->>CA: cardId o fallo tecnico
+    CA-->>AC: respuesta de creacion
+    AC-->>UI: resultado al especialista
+
+    alt Tarjeta creada
+      Especialista->>UI: Solicita activacion de beneficios
+      UI->>AC: POST /assistant/specialist/message "activar beneficios de propuesta X"
+      AC->>CA: execute(userMessage, proposalId)
+      alt Ruta agente
+        CA->>Model: interpretIntent()
+        Model-->>CA: toolName=activate_benefits
+      else Ruta fallback
+        CA->>Fallback: interpretIntent()
+        Fallback-->>CA: toolName=activate_benefits
+      end
+      CA->>AB: execute(proposalId)
+      AB->>Repo: findById(proposalId)
+      Repo-->>AB: proposal
+      AB->>Repo: save(benefitActivationStatus y estado final)
+      Repo-->>AB: ok
+      AB-->>CA: completed o parcial
+      CA-->>AC: respuesta final
+      AC-->>UI: cierre del flujo operativo
+    else Tarjeta no creada
+      UI-->>Especialista: Queda pendiente tecnico recuperable
+    end
+  else Beneficios rechazados
+    UI-->>Especialista: Propuesta rechazada&#59; flujo termina para negocio
+  end
+
+  opt Consulta final por parte del especialista
+    Especialista->>UI: Solicita estado o explicacion
+    UI->>AC: POST /assistant/specialist/message "explicar propuesta X" o "consultar estado"
+    AC->>CA: execute(userMessage, proposalId)
+    alt Ruta agente
+      CA->>Model: interpretIntent()
+      Model-->>CA: toolName=check_status o explain_proposal
+    else Ruta fallback
+      CA->>Fallback: interpretIntent()
+      Fallback-->>CA: toolName=check_status o explain_proposal
+    end
+    CA->>GS: execute(proposalId)
+    GS->>Repo: findById(proposalId)
+    Repo-->>GS: proposal
+    GS-->>CA: status operativo actual + benefitActivationStatus
+    CA-->>AC: respuesta final
+    AC-->>UI: estado para el especialista
+  end
