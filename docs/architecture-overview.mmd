@@ -1,0 +1,182 @@
+flowchart LR
+    customer["Cliente"]
+    specialist["Especialista de Credito"]
+    operator["Operador / CLI"]
+
+    subgraph inbound["Inbound Adapters"]
+        httpProposal["HTTP ProposalController\n/adapters/inbound/http/controllers/proposal.controller.ts"]
+        httpAssistant["HTTP AssistantController\n/adapters/inbound/http/controllers/assistant.controller.ts"]
+        cliAssistant["CLI Assistant\n/adapters/inbound/cli/assistant-cli.ts"]
+        httpFacade["ProposalService\nInbound workflow facade"]
+    end
+
+    subgraph application["Application Layer"]
+        subgraph inports["Inbound Ports"]
+            proposalWorkflow["ProposalWorkflowPort"]
+            assistantWorkflow["AssistantWorkflowPort"]
+        end
+
+        subgraph usecases["Use Cases"]
+            createProposal["CreateProposalUseCase"]
+            validateOffer["ValidateOfferEligibilityUseCase"]
+            validateBenefits["ValidateBenefitSelectionUseCase"]
+            submitProposal["SubmitProposalUseCase"]
+            createCard["CreateCardAccountUseCase"]
+            activateBenefits["ActivateBenefitsUseCase"]
+            getStatus["GetProposalStatusUseCase"]
+            listProposals["ListProposalsUseCase"]
+            explainProposal["GenerateProposalExplanationUseCase"]
+            chatAssistant["ChatAssistantUseCase"]
+        end
+
+        subgraph appservices["Application Services"]
+            outboxPublisher["OutboxEventPublisher"]
+            aiAssistantService["AiAssistantService"]
+        end
+
+        subgraph outports["Outbound Ports"]
+            proposalRepoPort["ProposalRepositoryPort"]
+            outboxRepoPort["OutboxEventRepositoryPort"]
+            cardPort["CardAccountPort"]
+            benefitsPort["BenefitsPort"]
+            aiPort["AiAssistantPort"]
+            chatModelPort["ChatAssistantModelPort"]
+        end
+    end
+
+    subgraph domain["Domain Layer"]
+        aggregate["CreditCardProposal\nAggregate Root"]
+        customerProfile["CustomerProfile"]
+        benefitSelection["BenefitSelection"]
+        offerPolicy["OfferEligibilityPolicy"]
+        benefitPolicy["BenefitEligibilityPolicy"]
+        domainEvents["Domain Event Payloads / Audit Trail"]
+    end
+
+    subgraph infrastructure["Infrastructure Layer"]
+        proposalRepo["TypeormProposalRepository"]
+        outboxRepo["TypeormOutboxRepository"]
+        fakeCard["FakeCardAccountAdapter"]
+        fakeBenefits["FakeBenefitsAdapter"]
+        fakeAssistant["FakeAiAssistantAdapter"]
+        fakeChat["FakeChatModelAdapter"]
+        openaiChat["OpenAiChatModelAdapter"]
+        proposalEntity["ProposalEntity"]
+        outboxEntity["OutboxEventEntity"]
+    end
+
+    subgraph external["External Systems"]
+        db["PostgreSQL"]
+        cardSystem["Card Account Service"]
+        benefitsSystem["Benefits Activation Service"]
+        aiModel["OpenAI Responses API / LLM"]
+    end
+
+    subgraph bootstrap["Bootstrap / Composition"]
+        appModule["AppModule"]
+        proposalModule["ProposalModule"]
+        config["ConfigModule"]
+        typeorm["TypeOrmModule"]
+    end
+
+    customer --> httpProposal
+    customer --> httpAssistant
+    specialist --> httpAssistant
+    specialist --> httpProposal
+    operator --> cliAssistant
+
+    httpProposal --> httpFacade
+    httpAssistant --> assistantWorkflow
+    cliAssistant --> assistantWorkflow
+    httpFacade --> proposalWorkflow
+
+    proposalWorkflow --> createProposal
+    proposalWorkflow --> validateOffer
+    proposalWorkflow --> validateBenefits
+    proposalWorkflow --> submitProposal
+    proposalWorkflow --> createCard
+    proposalWorkflow --> activateBenefits
+    proposalWorkflow --> getStatus
+    proposalWorkflow --> listProposals
+    proposalWorkflow --> explainProposal
+
+    assistantWorkflow --> chatAssistant
+    chatAssistant --> createProposal
+    chatAssistant --> validateOffer
+    chatAssistant --> validateBenefits
+    chatAssistant --> submitProposal
+    chatAssistant --> createCard
+    chatAssistant --> activateBenefits
+    chatAssistant --> getStatus
+    chatAssistant --> listProposals
+    chatAssistant --> explainProposal
+    chatAssistant --> chatModelPort
+
+    createProposal --> proposalRepoPort
+    createProposal --> outboxPublisher
+    validateOffer --> proposalRepoPort
+    validateOffer --> offerPolicy
+    validateOffer --> outboxPublisher
+    validateBenefits --> proposalRepoPort
+    validateBenefits --> benefitPolicy
+    validateBenefits --> outboxPublisher
+    submitProposal --> proposalRepoPort
+    submitProposal --> outboxPublisher
+    createCard --> proposalRepoPort
+    createCard --> cardPort
+    createCard --> outboxPublisher
+    activateBenefits --> proposalRepoPort
+    activateBenefits --> benefitsPort
+    activateBenefits --> outboxPublisher
+    getStatus --> proposalRepoPort
+    listProposals --> proposalRepoPort
+    explainProposal --> proposalRepoPort
+    explainProposal --> aiAssistantService
+    aiAssistantService --> aiPort
+    outboxPublisher --> outboxRepoPort
+
+    createProposal --> aggregate
+    validateOffer --> aggregate
+    validateBenefits --> aggregate
+    submitProposal --> aggregate
+    createCard --> aggregate
+    activateBenefits --> aggregate
+    getStatus --> aggregate
+    listProposals --> aggregate
+    explainProposal --> aggregate
+
+    aggregate --> customerProfile
+    aggregate --> benefitSelection
+    aggregate --> domainEvents
+
+    proposalRepoPort --> proposalRepo
+    outboxRepoPort --> outboxRepo
+    cardPort --> fakeCard
+    benefitsPort --> fakeBenefits
+    aiPort --> fakeAssistant
+    chatModelPort --> fakeChat
+    chatModelPort -. "when OPENAI_API_KEY" .-> openaiChat
+
+    proposalRepo --> proposalEntity
+    outboxRepo --> outboxEntity
+    proposalRepo --> db
+    outboxRepo --> db
+    fakeCard --> cardSystem
+    fakeBenefits --> benefitsSystem
+    fakeAssistant --> aiModel
+    openaiChat --> aiModel
+
+    config --> appModule
+    typeorm --> appModule
+    proposalModule --> appModule
+    proposalModule --> httpProposal
+    proposalModule --> httpAssistant
+    proposalModule --> httpFacade
+    proposalModule --> chatAssistant
+    proposalModule --> proposalRepo
+    proposalModule --> outboxRepo
+    proposalModule --> fakeCard
+    proposalModule --> fakeBenefits
+    proposalModule --> fakeAssistant
+    proposalModule --> fakeChat
+    proposalModule --> openaiChat
